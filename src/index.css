@@ -53,9 +53,11 @@
     line-height: 0.92;
     letter-spacing: -0.03em;
   }
+  /* Section headings are the second rung, not a second hero: 30px on a phone,
+     ~50px once the measure is wide. */
   .type-section {
-    font-size: clamp(2.4rem, 4.4vw, 4.4rem);
-    line-height: 0.95;
+    font-size: clamp(1.9rem, 3.6vw, 3.4rem);
+    line-height: 0.97;
     letter-spacing: -0.025em;
   }
   .type-project {
@@ -68,9 +70,10 @@
     line-height: 1.02;
     letter-spacing: -0.02em;
   }
+  /* Supporting copy sits at a comfortable 15–16px, never at headline weight. */
   .lede {
-    font-size: clamp(1.05rem, 1.3vw, 1.25rem);
-    line-height: 1.5;
+    font-size: clamp(0.9375rem, 1.15vw, 1rem);
+    line-height: 1.55;
   }
 
   /* ---- buttons and links ------------------------------------------------
@@ -438,13 +441,53 @@ button {
   }
 }
 
-/* ---- five pillars: a measured fan ----------------------------------------
-   Card width, step, rotation and the text inset come from PillarsFan's
-   ResizeObserver through --card-w / --text-pad and each card's --dx, --dy,
-   --rot and --sc. Nothing here hard-codes a viewport: the component sizes the
-   fan to the real container, this file owns appearance and the transition. */
+/* ---- five pillars: an endless run ----------------------------------------
+   Card width, gap and the text inset come from PillarsFan's ResizeObserver
+   through --card-w / --pillar-gap / --text-pad. Nothing here hard-codes a
+   viewport: the component sizes the cards and owns the drift, this file owns
+   appearance, the copies' geometry and the transition. */
 .pillars-stage {
   position: relative;
+}
+
+/* The phone run is full-bleed: it breaks out of the measured column to the
+   viewport edges and is clipped by the section, so cards enter and leave at
+   the edge rather than at an invisible box. */
+.pillars-marquee {
+  position: relative;
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  overflow: hidden;
+  /* The heading's descent needs air before the cards start passing. */
+  padding-top: 0.25rem;
+  margin-top: 0.9rem;
+}
+
+.pillars-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+/* One copy of the five cards, trailing gap included, so a turn of exactly this
+   width lands copy two's first card where copy one's was. */
+.pillars-set {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--pillar-gap, 14px);
+  padding-right: var(--pillar-gap, 14px);
+}
+
+/* Reduced motion: one copy, no tween, reachable by hand. */
+.pillars-marquee[data-motion='off'] {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pillars-marquee[data-motion='off']::-webkit-scrollbar {
+  display: none;
 }
 
 .pillars {

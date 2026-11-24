@@ -462,3 +462,36 @@ broken-image check. Without that, images that a vertical page sweep never reache
 broken on `always-on` at 430/390/360 even though every file exists.
 
 Frames: `audit/frames/rail-always-on-{0,1}-390.png`, `rail-htp-0-390.png` and the 1440 equivalents.
+
+## 10. Hero region, type scale and the mobile Work menu
+
+**The hero was a full viewport of film.** The shell was `h-[calc(100svh-24px)]` and, from 1280px, `absolute`
+inside a `min-h-[100svh]` section, so the video drew the whole screen and the only thing that read as
+"hero" was the film. It is now `h-[clamp(560px,82svh,900px)]` in flow with a 12px gutter on every side:
+886px of 1080 (82svh) at 1920, 738 of 900 at 1440, 630 of 768 at 1366, 692 of 844 on a 390 phone. The
+section no longer declares `min-h-[100svh]`; its height is the shell plus its 24px of margin, which is
+what ScrollTrigger's pin measures.
+
+**The headline was gated behind an event that could already have fired.** The words start at
+`yPercent: 112` inside `.mask-line` (overflow hidden), and the reveal waited for `dd:ready` with a 4s
+fallback. A route change, a lazy `Suspense` mount or a throttled background tab can all mount the hero
+after that event, so the listener never fired and the composition was a bare film until the fallback.
+`App.tsx` now sets `window.__ddReady` when it dispatches, and `Hero.tsx` plays immediately when the flag
+is already set; the fallback is 1.4s, the stroke watchdog 4.4s (after the last leg of the timeline).
+
+**Type scale.** Hero `clamp(2.75rem,5.2vw,5.125rem)` on desktop (82px at 1920, 75px at 1440, 71px at 1366)
+and `clamp(2.125rem,9vw,3.375rem)` below 1280 (34px at 320, 54px from 1024 up). `.type-section`
+`clamp(1.9rem,3.6vw,3.4rem)`, the manifesto heading `clamp(2rem,4.2vw,3.5rem)`, `.lede`
+`clamp(0.9375rem,1.15vw,1rem)`, Work-menu rows 16px with 11px statuses and 10px category chips.
+
+**Mobile Work menu.** Two touch events fought the click. A tap dispatches `pointerenter` with
+`pointerType: 'touch'` before `click`, so the burst's hover handler opened the menu that the click then
+toggled shut; `pointerleave` on lift-off then scheduled the 250ms close on top of that. Both the burst and
+the panel now act only on `pointerType === 'mouse'`; a tap has exactly one handler (the click toggle) and
+the outside-click listener still uses `contains()` on the burst and `#work-menu`.
+
+Verified at 430/390/360 (open, still open after 1.5s, project tap navigates and closes, second tap closes,
+Escape closes and returns focus, outside tap closes) and at 1440 (hover opens, leaving closes, click does not
+toggle). At 75/90/100/110/125/150% browser zoom — emulated as 1920/1600/1440/1309/1152/960 CSS px — the
+headline is painted, the shell stays inside 560–900px, the menu opens inside the viewport and nothing
+overflows: `audit/tools/header-menu.mjs`.

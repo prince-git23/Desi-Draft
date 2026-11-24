@@ -178,7 +178,12 @@ export default function App() {
 
   useEffect(() => {
     if (preloader) return;
-    const t = window.setTimeout(() => window.dispatchEvent(new Event('dd:ready')), 200);
+    const t = window.setTimeout(() => {
+      // The flag is what makes the gate recoverable: anything that mounts after
+      // this event can still ask whether the page is ready.
+      window.__ddReady = true;
+      window.dispatchEvent(new Event('dd:ready'));
+    }, 200);
     return () => window.clearTimeout(t);
   }, [preloader, location.pathname]);
 
@@ -188,6 +193,7 @@ export default function App() {
     } catch {
       /* ignore */
     }
+    window.__ddReady = true;
     window.dispatchEvent(new Event('dd:ready'));
     window.setTimeout(() => ScrollTrigger.refresh(), 300);
   }, []);

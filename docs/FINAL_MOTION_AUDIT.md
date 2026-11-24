@@ -143,3 +143,11 @@ at every width, so no pinning, no transforms and no autoplay. All copy, media an
 **Cleanup.** ScrollStack removes its scroll/wheel/pointer/resize listeners, disconnects its
 `ResizeObserver` and cancels both rAF handles on unmount; the preview videos are paused on
 unmount.
+
+**Hero reveal gate (revision).** The entrance is still the same staged timeline — film opens, first line,
+the italic word slides in, second line, drawn stroke — but it no longer depends on hearing an event that
+may have already been dispatched. `dd:ready` is now mirrored as `window.__ddReady`, so a hero mounted by a
+route change or a lazy boundary plays at once instead of holding the masked type off screen for four
+seconds. The 4s fallback is 1.4s and the stroke watchdog moved to 4.4s so it can never fire in the middle of
+the drawing leg. The pointer-parallax layers, the scroll-out shutter, the film's idle push and the reduced
+motion path (words set to their final position, film paused on its poster) are unchanged.

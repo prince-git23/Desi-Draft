@@ -87,8 +87,10 @@ for (const [w, h] of VIEWPORTS) {
     const heading = team.querySelector('h2')?.textContent?.trim() ?? '';
     const groups = [...footer.querySelectorAll('[data-footer-group]')];
     const groupText = groups.map((g) => g.innerText.replace(/\s+/g, ' ').trim());
+    // Contact-strip links are inline details, not controls: the size rules
+    // below are about buttons and CTA rows.
     const ctas = [...footer.querySelectorAll('button, a')]
-      .filter((el) => rect(el).width > 0)
+      .filter((el) => rect(el).width > 0 && !el.closest('[data-footer-strip]'))
       .map((el) => ({ label: el.innerText.replace(/\s+/g, ' ').trim(), h: Math.round(rect(el).height) }));
     const text = document.body.innerText;
     const socials = [...document.querySelectorAll('footer a[aria-label]')].map((a) => ({
@@ -172,16 +174,15 @@ for (const [w, h] of VIEWPORTS) {
   await page.evaluate(() => document.getElementById('footer')?.scrollIntoView({ block: 'end' }));
   await sleep(1200);
 
-  // The CTA opens the real enquiry dialog.
-  await page.locator('footer button', { hasText: 'start a project' }).first().click();
-  await sleep(500);
-  const dialog = await page.evaluate(() => {
-    const el = document.querySelector('[role="dialog"]');
-    return el ? { open: true, text: el.innerText.slice(0, 120), focus: document.activeElement?.tagName } : { open: false };
-  });
-  if (!dialog.open) fail('start-a-project did not open the contact dialog');
-  await page.keyboard.press('Escape');
-  await sleep(400);
+  // The CTA is a mailto to the verified inbox, not a dialog trigger.
+  const cta = page.locator('footer a[href^="mailto:"]', { hasText: 'start a project' }).first();
+  const href = await cta.getAttribute('href').catch(() => null);
+  const want = 'mailto:desidraftt@gmail.com?subject=Project%20enquiry%20%E2%80%94%20Desi%20Draft';
+  if (href !== want) fail(`start-a-project href is ${href}, expected ${want}`);
+  else {
+    const box = await cta.boundingBox();
+    if (!box || box.height < 44) fail(`start-a-project is ${box ? Math.round(box.height) : 0}px tall`);
+  }
 
   // Credits opens and closes.
   await page.locator('footer button', { hasText: 'credits' }).first().click();
@@ -218,7 +219,7 @@ for (const [w, h] of VIEWPORTS) {
 
   if (errors.length) fail(`behaviour run console errors: ${errors.slice(0, 2).join(' | ')}`);
   console.log(
-    `behaviour · dialog=${dialog.open} credits=${credits} backToTop=${y} tabbable=${tabbable} focus=${focused.tag}:${focused.width}px`
+    `behaviour · cta=${href ? 'mailto' : 'missing'} credits=${credits} backToTop=${y} tabbable=${tabbable} focus=${focused.tag}:${focused.width}px`
   );
   await context.close();
 }

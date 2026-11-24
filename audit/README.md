@@ -25,8 +25,11 @@ node audit/tools/responsive.mjs
 | `a11y.mjs` | contrast, landmarks, labels, focus targets |
 | `team-footer.mjs` | team 3/2/1 grid and the three footer groups at twelve widths |
 | `testimonials.mjs` | published cards, 3/2/1 columns, type floors, hover pause, reduced motion |
-| `pillars.mjs` | manifesto fan ≥1024, snap strip below, tap and page-scroll |
-| `pillar-text.mjs` | no card copy covered by its neighbour |
+| `pillars.mjs` | manifesto fan ≥1024, snap strip at 768–1023, endless phone run <768 (seamless loop, pause), tap and page-scroll |
+| `pillar-text.mjs` | card copy is not clipped inside its card |
+| `services.mjs` | services accordion ≥768: five panels open, evidence routes, keyboard, reduced motion |
+| `service-stack.mjs` | services deck <768: five complete cards, no clipping, drag/tap/keyboard, link vs turn, vertical scroll |
+| `header-menu.mjs` | Work menu tap/hover/Escape/outside-click at every width, hero composition and video source, WhatsApp action, 75–150% zoom |
 | `workstack.mjs` | selected-work stack and its static fallback |
 | `study-shot.mjs` | case-study image rails on a phone, grids on a laptop |
 | `final-metrics.mjs` | the measured table quoted in `docs/` |

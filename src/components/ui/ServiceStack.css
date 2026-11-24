@@ -1,0 +1,179 @@
+/**
+ * ServiceStack — the phone-only services deck.
+ *
+ * One cream card per service, the same surfaces and accents as the accordion
+ * it replaces: a hard-edged media band, a printed number, the service name, the
+ * description, the feature list and the evidence link. Only geometry and type
+ * live here; every word comes from `serviceGroups`.
+ */
+.svc-stack {
+  --svc-bg: #f3eee5;
+  --svc-line: rgb(10 10 10 / 0.16);
+  position: relative;
+}
+
+.svc-stack__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.svc-stack__pos {
+  color: rgb(10 10 10 / 0.55);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.16em;
+}
+
+.svc-stack__pos span {
+  color: var(--ink);
+}
+
+.svc-stack__hint {
+  color: rgb(10 10 10 / 0.5);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The hidden measuring layer: same width, same card, no images. */
+.svc-stack__measure {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Mirrors the 3px photo frame the stack draws around each card. */
+.svc-stack__probe {
+  padding: 3px;
+}
+
+/* Room for the two cards peeking out behind the top one. */
+.svc-stack__deck {
+  position: relative;
+  padding-top: var(--svc-deck-room, 52px);
+}
+
+/* ---- card ------------------------------------------------------------ */
+
+.svc-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--svc-line);
+  border-radius: 15px;
+  background: var(--svc-bg);
+  color: var(--ink);
+}
+
+.svc-card__media {
+  position: relative;
+  flex: none;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #ded7ca;
+  border-bottom: 1px solid var(--svc-line);
+}
+
+.svc-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.svc-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.8rem 0.95rem 0.95rem;
+}
+
+.svc-card__no {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.16em;
+  color: rgb(10 10 10 / 0.6);
+}
+
+.svc-card__rule {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: var(--svc-accent, var(--ink));
+}
+
+.svc-card__title {
+  font-size: clamp(19px, 5.2vw, 22px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.svc-card__desc {
+  max-width: 42ch;
+  color: rgb(10 10 10 / 0.72);
+  font-size: 14.5px;
+  line-height: 1.42;
+}
+
+.svc-card__features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 0.22rem 0.9rem;
+  margin-top: 0.15rem;
+  color: rgb(10 10 10 / 0.86);
+  font-size: 14px;
+  line-height: 1.32;
+}
+
+.svc-card__features li {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.svc-card__dot {
+  flex: none;
+  color: var(--svc-accent, var(--ink));
+  font-size: 8px;
+  line-height: 1.9;
+}
+
+.svc-card__link {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgb(10 10 10 / 0.3);
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.svc-card__link .btn-arrow {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+a.svc-card__link:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+a.svc-card__link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-card__link .btn-arrow {
+    transition: none;
+  }
+}

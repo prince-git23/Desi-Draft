@@ -34,8 +34,11 @@ for (const [w, h] of [[1920, 1080], [1440, 900], [1280, 800], [1024, 768]]) {
   });
   await page.waitForTimeout(900);
   const rows = await page.evaluate(() => {
-    const cards = [...document.querySelectorAll('.pillar')];
-    const ul = document.querySelector('.pillars');
+    // The run repeats the five cards; only the first copy carries the text
+    // every other copy mirrors.
+    const first = document.querySelector('.pillars-set') ?? document.querySelector('.pillars');
+    const cards = [...first.querySelectorAll('.pillar')];
+    const ul = first;
     const pad = getComputedStyle(ul).getPropertyValue('--text-pad').trim();
     return cards.map((card, i) => {
       const text = card.querySelector('.pillar-text');
@@ -45,14 +48,16 @@ for (const [w, h] of [[1920, 1080], [1440, 900], [1280, 800], [1024, 768]]) {
         const r = el.getBoundingClientRect();
         return { l: Math.round(r.left), r: Math.round(r.right), t: Math.round(r.top), b: Math.round(r.bottom) };
       };
-      const next = cards[i + 1];
-      const nb = next ? next.getBoundingClientRect() : null;
-      const covers = nb
-        ? cards[i].querySelectorAll('.pillar-title, .pillar-copy')
-        : [];
-      const covered = [...covers].map((el) => {
+      // The next card only overlaps this one where the copy is overlapped by
+      // design; in the run the cards are separated by a real gap, so any
+      // overlap here would be a genuine collision.
+      const nx = cards[i + 1]?.getBoundingClientRect();
+      const cb = card.getBoundingClientRect();
+      const covered = [...card.querySelectorAll('.pillar-title, .pillar-copy')].map((el) => {
         const r = el.getBoundingClientRect();
-        return Math.max(0, Math.round(r.right - nb.left));
+        const overNext = nx ? Math.max(0, Math.round(r.right - nx.left)) : 0;
+        const outOfCard = Math.max(0, Math.round(r.right - cb.right), Math.round(cb.left - r.left));
+        return Math.max(overNext, outOfCard);
       });
       return {
         i,

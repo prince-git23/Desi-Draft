@@ -1,20 +1,27 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from '../lib/smooth';
-import { usePrefersReducedMotion } from '../lib/hooks';
+import { useMediaQuery, usePrefersReducedMotion } from '../lib/hooks';
 import { serviceGroups } from '../data/site';
 import { EnquiryButton } from './ContactDialog';
 import { Chapter } from './ui/Chapter';
 import { AccordionGallery } from './ui/AccordionGallery';
+import { ServiceStack } from './ui/ServiceStack';
 
 /**
- * Services as an accordion gallery: one wide panel of work, four slim spines
- * that still name their discipline. The data is untouched — every title,
- * description, feature and evidence link is read from `serviceGroups`.
+ * Services, in two presentations of one dataset: the accordion gallery from the
+ * tablet breakpoint up (one wide panel of work, the rest slim spines that still
+ * name their discipline), and the service deck below it. Only one of the two is
+ * ever mounted, so no duplicate copy, no duplicate animation and no second set
+ * of images. Every title, description, feature and evidence link is read from
+ * `serviceGroups` in both.
  */
 export function Services() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduced = usePrefersReducedMotion();
+  // 768: the narrowest width where the accordion still holds five readable
+  // panels one under the other. Below it the deck takes over.
+  const compact = useMediaQuery('(max-width: 767px)');
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -69,7 +76,7 @@ export function Services() {
         </div>
 
         <div className="svc-gallery mt-9">
-          <AccordionGallery items={serviceGroups} />
+          {compact ? <ServiceStack items={serviceGroups} /> : <AccordionGallery items={serviceGroups} />}
         </div>
 
         <div className="mt-9 flex flex-col items-start justify-between gap-5 border-t border-ink/20 pt-6 sm:flex-row sm:items-center">

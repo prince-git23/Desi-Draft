@@ -49,7 +49,7 @@ emails, never something to commit.
 | Client logos | none — the previous fictional tile set was removed with its section; add real, cleared logos if a client list returns |
 | Team names / roles / layout | `src/data/team.ts` |
 | Services groups | `src/data/site.ts` → `serviceGroups` |
-| WhatsApp number, email, address, socials, map link | `src/data/site.ts` |
+| Verified email, WhatsApp, studio location, Instagram | `src/data/site.ts` (the only place they are defined; the footer reads them from there) |
 | Credits name | `src/components/Footer.tsx` |
 | Fonts | `index.html` (Archivo, Instrument Serif, DM Sans, Yellowtail) |
 
@@ -63,5 +63,5 @@ The brand, portfolio-content, asset-gap, copy, motion and roadmap documents live
 
 - All scroll animation is built in `gsap.context()` and reverted on unmount; `ScrollTrigger.refresh()` runs after fonts load and on route changes.
 - `prefers-reduced-motion` disables pinning, parallax, marquee and physics, and shows static fallbacks.
-- Footer physics bodies approximate the top profile of the script wordmark so stickers land on the letters.
+- Footer stickers drop with Matter.js into a band measured between the contact strip and the bottom bar, staggered after the wordmark reveals; they cannot reach the copy, the strip or the navigation, and reduced motion shows them in their final positions.
 - The team section is a plain responsive ProfileCard grid (3 / 2 / 1 columns). It creates no WebGL contexts and has no pinned scroll stage.

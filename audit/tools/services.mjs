@@ -13,14 +13,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const BASE = 'http://127.0.0.1:4174';
+// 768 and up only: below 768 the services section renders the mobile deck
+// instead of the accordion, and `service-stack.mjs` covers those widths.
 const WIDTHS = [
   [1920, 1080],
   [1440, 900],
+  [1280, 800],
   [1024, 768],
+  [820, 1180],
   [768, 1024],
-  [430, 932],
-  [390, 844],
-  [320, 720],
 ];
 
 const base = path.join(process.env.LOCALAPPDATA, 'ms-playwright');
@@ -251,7 +252,7 @@ for (const [W, H] of WIDTHS) {
     return { y: Math.round(r.top + window.scrollY), h: Math.round(r.height) };
   });
   await page.screenshot({
-    path: `../frames/svc-${W}.png`,
+    path: `audit/frames/svc-${W}.png`,
     clip: { x: 0, y: 0, width: W, height: Math.min(H, 900) },
   });
   void box;
@@ -282,7 +283,7 @@ console.log(`\n=== reduced motion ${JSON.stringify(reducedInfo)}`);
 if (parseFloat(reducedInfo.transition) > 0.05) fail('reduced motion still transitions the panels');
 if (reducedInfo.hidden) fail('reduced motion hides the open panel');
 if (reducedInfo.transparentKids > 0) fail('reduced motion left content at opacity 0');
-await rm.screenshot({ path: '../frames/svc-reduced.png' });
+await rm.screenshot({ path: 'audit/frames/svc-reduced.png' });
 await rm.close();
 
 await browser.close();

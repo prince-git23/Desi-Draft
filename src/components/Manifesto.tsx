@@ -43,11 +43,10 @@ export function Manifesto() {
     >
       <div className="mf-heading dd-pad relative z-10 mx-auto max-w-[1200px] text-center">
         <Chapter no="02" name="the thinking" align="center" className="mb-5" />
-        {/* The laptop scale is 5.2vw → 72px. On a phone that floor of 35.2px
-            left the italic third line all but touching both gutters at 320, so
-            below 768 the heading is 8.6vw with a 37.6px cap — the same optical
-            size on a 390 screen, with room to breathe at 320. */}
-        <h2 className="display text-ink text-[clamp(1.75rem,8.6vw,2.35rem)] md:text-[clamp(2.4rem,5.2vw,4.5rem)]">
+        {/* The laptop scale is 4.2vw → 56px at 1366, below the hero at every
+            width. On a phone the 8.6vw line with a 37.6px cap keeps the italic
+            third line clear of both gutters at 320. */}
+        <h2 className="display text-ink text-[clamp(1.75rem,8.6vw,2.35rem)] md:text-[clamp(2rem,4.2vw,3.5rem)]">
           <span className="mask-line -mb-[0.2em] block pb-[0.2em]">
             <span className="mf-line-inner block">a studio built</span>
           </span>
