@@ -1,0 +1,17 @@
+export type StickerKey =
+  | 'smiley'
+  | 'camera'
+  | 'phone'
+  | 'heart'
+  | 'hundred'
+  | 'bam'
+  | 'heartHands'
+  | 'fingerHeart'
+  | 'thumbsUp'
+  | 'cursor'
+  | 'wrist'
+  | 'letsGo'
+  | 'goodVibes'
+  | 'hi'
+  | 'joinClub'
+  | 'cool';
