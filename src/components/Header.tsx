@@ -144,10 +144,17 @@ export function Header({ fixedTheme }: { fixedTheme?: 'light' | 'dark' }) {
           aria-haspopup="true"
           aria-expanded={menuOpen}
           aria-controls="work-menu"
-          onPointerEnter={() => {
-            if (pointerKind.current === 'mouse') openMenu();
+          // Touch fires pointerenter and pointerleave around every tap, so a
+          // hover handler that ignores the pointer type opens the menu on the
+          // way down and schedules a close on the way up — the menu appeared
+          // and vanished in the same gesture. Only a mouse opens on enter or
+          // closes on leave; a tap is handled once, by the click below.
+          onPointerEnter={(e) => {
+            if (e.pointerType === 'mouse') openMenu();
           }}
-          onPointerLeave={scheduleClose}
+          onPointerLeave={(e) => {
+            if (e.pointerType === 'mouse') scheduleClose();
+          }}
           onPointerDown={(e) => {
             pointerKind.current = e.pointerType === 'touch' ? 'touch' : 'mouse';
           }}

@@ -18,6 +18,26 @@ export function usePrefersReducedMotion() {
   return reduced;
 }
 
+/**
+ * A media query as state, read synchronously on the first render so a branch
+ * chosen by width never paints the wrong tree for a frame.
+ */
+export function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    setMatches(mq.matches);
+    const onChange = () => setMatches(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [query]);
+
+  return matches;
+}
+
 export function useIsTouch() {
   const [touch, setTouch] = useState(false);
   useEffect(() => {

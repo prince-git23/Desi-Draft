@@ -177,7 +177,10 @@ const measure = () =>
 
 const inRange = (value, min, max) => value >= min - 0.6 && value <= max + 0.6;
 
+const only = process.env.DD_ONLY ? Number(process.env.DD_ONLY) : 0;
+
 for (const [w, h] of VIEWPORTS) {
+  if (only && w !== only) continue;
   const context = await browser.newContext({ viewport: { width: w, height: h } });
   await seed(context);
   const page = await context.newPage();
@@ -295,6 +298,7 @@ for (const [w, h] of VIEWPORTS) {
     return el ? Number(getComputedStyle(el).opacity) : 0;
   });
   if (wmOpacity < 0.9) fail(`${w}: wordmark never became visible (opacity ${wmOpacity})`);
+  await page.screenshot({ path: path.join(FRAMES, `footer-bottom-${w}.jpg`) });
 
   if (w < 768) {
     await page.screenshot({ path: path.join(FRAMES, `footer-mobile-${w}.jpg`) });
@@ -303,12 +307,12 @@ for (const [w, h] of VIEWPORTS) {
   console.log(
     `${w}x${h} · cols=${s.columns} inner=${s.grid.width}px panel=${s.panel.width}px headline=${s.headline}px desc=${s.description}px contact=${s.contact}px stickers=${s.stickers} overflow=${s.overflow}`
   );
-  if (w < 768) {
+  if (w < 768 || process.env.DD_DEBUG) {
     const top = s.panel.top;
     const rel = (box) => (box ? `${box.top - top}–${box.bottom - top}` : 'n/a');
     console.log(
-      `   panel=${s.panelH}px strip=${rel(s.stripBox)} bar=${rel(s.barBox)} stickers=${s.stickerBoxes
-        .map((b) => `${b.kind}@${b.top - top}–${b.bottom - top}`)
+      `   panel=${s.panelH}px strip=${rel(s.stripBox)} bar=${rel(s.barBox)} physics=${s.physics} stickers=${s.stickerBoxes
+        .map((b) => `${b.kind}@${b.left},${b.top - top}–${b.bottom - top}`)
         .join(' ')}`
     );
   }

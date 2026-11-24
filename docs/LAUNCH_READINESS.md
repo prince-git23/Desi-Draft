@@ -10,19 +10,21 @@ this build, so nothing here is verified in production.
 | Detail | Value | Why |
 | --- | --- | --- |
 | Instagram | **published** — `https://www.instagram.com/desidraftt.co/` | the studio's own public profile; opened and inspected directly |
-| Email | empty (`site.email = ''`) | inbox never confirmed as deliverable |
-| City / address | empty (`site.address = []`) | unverified business address |
-| WhatsApp | empty | no verified number |
-| LinkedIn / TikTok | empty | no verified profile URLs |
+| Email | **published** — `desidraftt@gmail.com` | studio-supplied inbox; every enquiry CTA and the contact strip use it |
+| WhatsApp | **published** — `+91 90215 13161` (`https://wa.me/919021513161`) | studio-supplied number; footer secondary channel and header affordance |
+| Location | **published as text** — `NKY Tower, Nagpur, Maharashtra, India` | readable address only: no map URL or pin was supplied, so none is rendered |
+| LinkedIn / YouTube | empty | no verified profile URLs |
 | Google Maps | empty | follows the address |
 
-Instagram is the only verified public channel, so `hasContactChannel` is now
-true and the contact panel shows it as a real destination instead of the
-"details being confirmed" copy:
+All four values live in `src/data/site.ts` and nowhere else. Nothing beyond
+them is invented: no second phone number, no street address, no map pin, no
+extra social profile. The footer contact strip, the bottom bar, the contact
+panel and the mailto CTAs all render from that one object:
 
-- Footer: the Instagram icon renders on its own (the other two stay hidden).
-- Contact panel: "email us" is absent (no inbox), the Instagram link is present.
-- Header WhatsApp button and QR dialog remain hidden while `site.whatsapp` is empty.
+- Footer: email, WhatsApp, location and Instagram appear in a four-item contact
+  strip (two columns on phones), each with an icon and a readable label.
+- Contact panel: shows the email and the Instagram profile as real destinations.
+- Header: the WhatsApp button and its QR panel render now that the number exists.
 
 The profile itself: bio **"Ideas Into Impact. · Branding · Digital Marketing ·
 Social Media Management"**, two published posts, both reels. Their public
@@ -37,11 +39,12 @@ contact panel. A shipped project also carries one external link to itself.
 
 | CTA | Location | Destination now |
 | --- | --- | --- |
-| start a conversation | Services block | contact panel |
-| start a project | footer contact column | contact panel |
-| work with us | footer collaboration column | contact panel (“work with us”) |
+| start a conversation | Services block | `mailto:desidraftt@gmail.com?subject=Project enquiry — services` |
+| start a project | footer 03 · start a project | `mailto:desidraftt@gmail.com?subject=Project enquiry — Desi Draft` |
+| work with us | footer 01 · collaboration | `mailto:desidraftt@gmail.com?subject=Collaboration with Desi Draft` |
+| chat on whatsapp | footer 03 · start a project | `https://wa.me/919021513161` — `target="_blank"`, `rel="noopener noreferrer"` |
 | say hi | each of the three team cards | contact panel (“hello <name>”) |
-| start a conversation | every unfinished case study | contact panel |
+| start a conversation | every unfinished case study | `mailto:desidraftt@gmail.com?subject=Project enquiry — <project>` |
 | **Visit Live Website** | Flora Alchemy header pill, phone section, closing band | `https://flora-alchemyy.vercel.app/` — `target="_blank"`, `rel="noopener noreferrer"` |
 
 The contact panel is now a real enquiry form backed by `server/` (`npm run api`):
@@ -52,6 +55,12 @@ with `GET /api/enquiries` and a Bearer `ENQUIRY_ADMIN_TOKEN`; the database
 only destination that does not need a public inbox: no fabricated URL, no
 `href="#"`, no `javascript:` links anywhere in the rendered pages. `cta.mjs`
 asserts the live link's exact URL, target and `rel`.
+
+`audit/tools/cta.mjs` also asserts that each enquiry CTA is a `mailto:` to
+`desidraftt@gmail.com` with the exact subject shown above, that the header panel
+still opens on desktop and on a phone, and that the footer CTA is at least 44 px
+tall. `audit/tools/footer-check.mjs` covers the footer itself at the eleven
+required viewports plus reduced motion.
 
 ## 3. Homepage
 

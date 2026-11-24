@@ -171,12 +171,22 @@ export function Hero() {
 
       playRef = play;
       // Reduced motion has no entrance to wait for: settle the type and the
-      // stroke on mount instead of sitting on the 4 s fallback.
-      if (reduced) play();
-      window.addEventListener('dd:ready', play, { once: true });
-      fallback = window.setTimeout(play, 4000);
-      // Watchdog: whatever happened above, the annotation is visible by 4.2s.
-      if (strokes.length) strokeGuard = window.setTimeout(revealStrokes, 4200);
+      // stroke on mount instead of waiting for a gate.
+      if (reduced) {
+        play();
+      } else if (window.__ddReady) {
+        // The preloader has already finished — a route change, a lazy mount or
+        // a restored tab can all mount the hero after `dd:ready` has fired. The
+        // word masks start closed, so waiting for an event that will never come
+        // again left the headline invisible behind the film until the fallback.
+        play();
+      } else {
+        window.addEventListener('dd:ready', play, { once: true });
+      }
+      fallback = window.setTimeout(play, 1400);
+      // Watchdog: whatever happened above, the annotation is visible by 4.4s
+      // (after the longest possible leg of the entrance timeline).
+      if (strokes.length) strokeGuard = window.setTimeout(revealStrokes, 4400);
 
       // ---- pointer depth: film and headline at two rates, so the frame ----
       // ---- reads as a space rather than a flat image ----
@@ -291,10 +301,14 @@ export function Hero() {
   };
 
   return (
-    <section id="hero" ref={sectionRef} data-theme="motion" className="relative min-h-[100svh] w-full">
+    <section id="hero" ref={sectionRef} data-theme="motion" className="relative w-full">
+      {/* The hero is a measured region, not the whole viewport: 82svh of film at
+          most, so the composition stays a hero rather than a page of video. It
+          is capped at 900px so a tall monitor does not stretch the footage, and
+          floored at 560px so a short laptop window still holds the headline. */}
       <div
         ref={shellRef}
-        className="relative mx-3 mt-3 h-[calc(100svh-24px)] origin-top overflow-hidden rounded-[24px] bg-ink xl:absolute xl:inset-x-3 xl:top-3 xl:mx-0 xl:mt-0"
+        className="relative mx-3 my-3 h-[clamp(560px,82svh,900px)] origin-top overflow-hidden rounded-[24px] bg-ink"
       >
         {/* Media. From 1280 px it is the full-bleed film behind the headline.
             Below that it is a framed panel above the headline, so neither the
@@ -363,7 +377,7 @@ export function Hero() {
           className="absolute inset-x-0 bottom-[max(5.4rem,13%)] z-10 px-4 xl:bottom-[12%]"
         >
           <Chapter no="01" name="the idea" tone="cream" align="center" className="mb-3" />
-          <h1 className="display mx-auto max-w-[1400px] text-center text-cream text-[clamp(1.9rem,min(6.8vw,8.6svh),4.1rem)] leading-[0.92] xl:text-[clamp(2.4rem,6.4vw,6rem)]">
+          <h1 className="display mx-auto max-w-[1400px] text-center text-cream text-[clamp(2.125rem,9vw,3.375rem)] leading-[0.94] xl:text-[clamp(2.75rem,5.2vw,5.125rem)]">
             <span className="block">
               <span className="relative inline-block">
                 <span className="mask-line inline-block pb-[.08em] align-bottom">

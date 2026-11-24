@@ -57,8 +57,15 @@ export function WorkMenu({
       id="work-menu"
       ref={panelRef}
       aria-hidden={!open}
-      onPointerEnter={onEnter}
-      onPointerLeave={onLeave}
+      // Touch emits enter/leave for every tap; treating those as hover would
+      // close the panel a quarter-second after the finger lifted. A mouse still
+      // gets the hover hand-off between the burst and the panel.
+      onPointerEnter={(e) => {
+        if (e.pointerType === 'mouse') onEnter();
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType === 'mouse') onLeave();
+      }}
       className={`fixed left-3 top-3 z-0 w-[clamp(250px,21vw,330px)] rounded-[16px] bg-cream p-3 pt-14 text-ink shadow-[0_12px_32px_rgba(0,0,0,.28)] ${
         open ? '' : 'pointer-events-none'
       }`}
@@ -79,7 +86,7 @@ export function WorkMenu({
             >
               <span
                 aria-hidden="true"
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-[8px] text-[8px] uppercase leading-[1.2] tracking-[0.1em]"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-[8px] text-[10px] uppercase leading-[1.2] tracking-[0.1em]"
                 style={{
                   background: p.cover.color ?? cat.color,
                   color: p.cover.color && ['#E8B4F5', '#E4FBA8', '#8499F8'].includes(p.cover.color) ? '#0A0A0A' : '#EEEAE3',
@@ -88,8 +95,8 @@ export function WorkMenu({
                 {cat.short}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="mb-1 block text-[9px] uppercase tracking-[0.14em] text-ink/60">{p.status}</span>
-                <span className="display block text-[14px] leading-[1.1] text-ink">{p.title}</span>
+                <span className="mb-1 block text-[11px] uppercase tracking-[0.14em] text-ink/60">{p.status}</span>
+                <span className="display block text-[16px] leading-[1.1] text-ink">{p.title}</span>
               </span>
             </Link>
           );

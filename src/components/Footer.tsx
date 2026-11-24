@@ -228,6 +228,8 @@ export function Footer() {
 
       stickerRefs.current.forEach((el, i) => {
         if (!el) return;
+        el.style.opacity = '1';
+        el.style.top = 'auto';
         const h = el.offsetHeight || 100;
         // Sit them on the wordmark's lower perimeter, never in the middle of
         // the script: a short band just above the bottom bar.
@@ -567,7 +569,7 @@ export function Footer() {
           data-theme="studio"
           className="relative overflow-hidden rounded-[24px] bg-royal text-cream"
         >
-          <div className="relative z-20 mx-auto w-[92vw] max-w-[1740px] pt-8 sm:pt-10 lg:pt-12">
+          <div className="relative z-20 mx-auto w-[92vw] max-w-[1740px] pt-6 sm:pt-10 lg:pt-12">
             {/* On cream type the label measured 4.12:1 against royal — under AA for
                 10px. It sits on the same cream pill as the three groups below. */}
             <span className="inline-flex rounded-full bg-cream px-3 py-[7px] text-ink">
@@ -577,7 +579,7 @@ export function Footer() {
             <div
               ref={gridRef}
               data-footer-grid
-              className="mt-7 grid grid-cols-1 gap-y-9 sm:grid-cols-2 sm:gap-x-[clamp(1.75rem,3vw,3rem)] lg:grid-cols-3 lg:gap-x-[clamp(2rem,4vw,4.5rem)]"
+              className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-[clamp(1.75rem,3vw,3rem)] sm:gap-y-8 lg:grid-cols-3 lg:gap-x-[clamp(2rem,4vw,4.5rem)]"
             >
               {/* 01 — collaboration is an invitation, never a vacancy. */}
               <div data-footer-group="01" className="flex flex-col items-start">
@@ -585,13 +587,13 @@ export function Footer() {
                 <h3 className="display text-[clamp(1.6rem,2.6vw,2.5rem)] leading-[1.03]">
                   make something <span className="serif-i">with us.</span>
                 </h3>
-                <p className="footer-text mt-3 max-w-[38ch] text-[clamp(0.94rem,1.05vw,1.03rem)] leading-[1.55]">
+                <p className="footer-text mt-2.5 max-w-[38ch] text-[clamp(0.94rem,1.05vw,1.03rem)] leading-[1.55] sm:mt-3">
                   We work with photographers, editors, stylists, writers and developers on a
                   project basis. Have something to bring? Send us your work.
                 </p>
                 <a
                   href={`mailto:${site.email}?subject=${encodeURIComponent('Collaboration with Desi Draft')}`}
-                  className="btn mt-5 min-h-[48px] w-full border border-cream/50 px-6 text-[15px] text-cream hover:border-cream hover:bg-cream hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream sm:w-auto"
+                  className="btn mt-4 min-h-[48px] w-full sm:mt-5 border border-cream/50 px-6 text-[15px] text-cream hover:border-cream hover:bg-cream hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream sm:w-auto"
                 >
                   work with us
                   <span className="btn-arrow" aria-hidden="true">
@@ -606,7 +608,7 @@ export function Footer() {
                 <h3 className="display text-[clamp(1.6rem,2.6vw,2.5rem)] leading-[1.03]">
                   {teamCount()} people, <span className="serif-i">one studio.</span>
                 </h3>
-                <p className="footer-text mt-3 max-w-[38ch] text-[clamp(0.94rem,1.05vw,1.03rem)] leading-[1.55]">
+                <p className="footer-text mt-2.5 max-w-[38ch] text-[clamp(0.94rem,1.05vw,1.03rem)] leading-[1.55] sm:mt-3">
                   Creative strategy, social content, video and digital experiences — from the first
                   idea to the final delivery.
                 </p>
@@ -621,10 +623,10 @@ export function Footer() {
                 <h3 className="display text-[clamp(1.6rem,2.6vw,2.5rem)] leading-[1.03]">
                   tell us what you&apos;re <span className="serif-i">making.</span>
                 </h3>
-                <p className="footer-text mt-3 max-w-[38ch] text-[clamp(0.94rem,1.05vw,1.03rem)] leading-[1.55]">
+                <p className="footer-text mt-2.5 max-w-[38ch] text-[clamp(0.94rem,1.05vw,1.03rem)] leading-[1.55] sm:mt-3">
                   Have a brand, campaign or digital idea in mind? Let&apos;s talk about it.
                 </p>
-                <div className="mt-5 flex w-full flex-col gap-2.5 sm:flex-row sm:items-center">
+                <div className="mt-4 flex w-full flex-col gap-2.5 sm:mt-5 sm:flex-row sm:items-center">
                   <a
                     href={`mailto:${site.email}?subject=${encodeURIComponent('Project enquiry — Desi Draft')}`}
                     className="btn btn-cream min-h-[52px] w-full px-7 text-[clamp(0.94rem,1.05vw,1rem)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream sm:w-auto"
@@ -650,10 +652,10 @@ export function Footer() {
             <div
               ref={stripRef}
               data-footer-strip
-              className="mt-9 border-t border-cream/25 pt-5 lg:mt-10"
+              className="mt-6 border-t border-cream/25 pt-3 sm:pt-4 lg:mt-10 lg:pt-5"
               aria-label="Studio contact details"
             >
-              <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+              <ul className="grid grid-cols-2 gap-x-5 gap-y-3 lg:grid-cols-4 lg:gap-x-8">
                 <ContactLine icon={<MailIcon />} label="email">
                   <a
                     href={`mailto:${site.email}`}
@@ -680,6 +682,7 @@ export function Footer() {
                     href={INSTAGRAM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="Desi Draft on Instagram"
                     className="underline-offset-4 transition-colors hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream"
                   >
                     {INSTAGRAM_HANDLE}
@@ -692,7 +695,7 @@ export function Footer() {
           {/* The wordmark is part of the flow, not parked at the bottom of a
               forced 100svh panel: that was the empty band above the script in
               the reference. It is cropped by the footer's own overflow. */}
-          <div className="relative z-20 mt-6 pb-14 sm:pb-12 md:mt-5 lg:pb-0">
+          <div className="relative z-20 mt-3 pb-10 sm:pb-10 md:mt-5 lg:pb-0">
             <div ref={wordmarkRef} className="pointer-events-none select-none">
               <Logo
                 className="w-full text-cream sm:w-[104%] sm:-translate-x-[2%]"
@@ -717,10 +720,8 @@ export function Footer() {
                 ref={(el) => {
                   stickerRefs.current[i] = el;
                 }}
-                className={`absolute left-0 top-0 will-change-transform ${i > 3 ? 'hidden lg:block' : ''}`}
-                style={
-                  reduced || narrow ? { ...STATIC_POS[i], top: 'auto', opacity: 1 } : { opacity: 0 }
-                }
+                className={`absolute left-0 top-0 opacity-0 will-change-transform ${i > 3 ? 'hidden lg:block' : ''}`}
+                style={reduced || narrow ? { ...STATIC_POS[i], top: 'auto', opacity: 1 } : undefined}
               >
                 <Sticker
                   kind={kind}
@@ -736,7 +737,7 @@ export function Footer() {
           <div
             ref={barRef}
             data-footer-bar
-            className="relative z-50 mx-auto flex w-[92vw] max-w-[1740px] flex-wrap items-center justify-between gap-x-4 gap-y-2 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3"
+            className="relative z-50 mx-auto flex w-[92vw] max-w-[1740px] flex-wrap items-center justify-between gap-x-4 gap-y-2 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 sm:pt-3"
           >
             <p className="footer-text text-[11.5px] uppercase tracking-[0.14em]">
               © {new Date().getFullYear()} desi draft · nagpur, india
@@ -746,6 +747,7 @@ export function Footer() {
                 href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Desi Draft on Instagram"
                 className="footer-text inline-flex min-h-[40px] items-center gap-2 rounded-full border border-[#faf8f4]/45 px-3.5 text-[12px] lowercase transition-colors hover:bg-cream hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream"
               >
                 <InstagramIcon />
