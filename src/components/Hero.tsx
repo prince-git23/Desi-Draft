@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { gsap, ScrollTrigger } from '../lib/smooth';
+import { gsap } from '../lib/smooth';
 import { usePrefersReducedMotion } from '../lib/hooks';
 import { HeroMontage } from './HeroMontage';
 import { Chapter } from './ui/Chapter';
@@ -10,9 +10,7 @@ export function Hero() {
   const shellRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
-  const veilRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const revealRef = useRef<HTMLDivElement>(null);
   const underlineRef = useRef<SVGPathElement>(null);
 
   const [muted, setMuted] = useState(true);
@@ -114,7 +112,6 @@ export function Hero() {
       const lineOne = words.slice(0, 4); // we make content for
       const lineTwo = words.slice(4); // the new desi mainstream
       const contentWord = words[2]; // the italic word, which slides in
-      const reveal = revealRef.current;
       // Words land from below *and* tilt up out of the baseline, so the first
       // line reads as type standing up rather than sliding in flat.
       gsap.set(words, {
@@ -127,8 +124,6 @@ export function Hero() {
       // while it is still half-clipped by its own mask.
       gsap.set(contentWord, { x: -14 });
       gsap.set('.hero-fade', { autoAlpha: 0 });
-      // The film opens inside its own frame and then fills it.
-      if (!reduced) gsap.set(reveal, { clipPath: 'inset(10% 7% 10% 7%)' });
 
       const strokes = [underlineRef.current].filter(Boolean) as SVGPathElement[];
       gsap.set(strokes, { strokeDasharray: 1, strokeDashoffset: 1 });
@@ -144,29 +139,27 @@ export function Hero() {
         if (reduced) {
           gsap.set(words, { yPercent: 0, x: 0, rotateX: 0 });
           gsap.set('.hero-fade', { autoAlpha: 1 });
-          gsap.set(reveal, { clipPath: 'none' });
           revealStrokes();
           return;
         }
-        // Staged like the storyboard: film opens, first line, the italic word
-        // slides in, second line, then the drawn ellipse. 2.9 s end to end —
-        // the headline has to be readable before anyone scrolls, so the 6.5 s
-        // sketch in the brief is compressed rather than literally timed.
+        // The film is already full-bleed when the gate opens, so the entrance is
+        // the type alone: first line, the italic word, second line, then the
+        // drawn stroke. 2.7 s end to end — the headline has to be readable
+        // before anyone scrolls.
         const tl = gsap.timeline({ delay: 0.1 });
-        tl.to(reveal, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'power3.inOut' }, 0)
-          .to(
-            lineOne,
-            { yPercent: 0, rotateX: 0, duration: 0.9, ease: 'power4.out', stagger: 0.08 },
-            0.35
-          )
-          .to(contentWord, { x: 0, duration: 1.1, ease: 'power3.out' }, 0.55)
+        tl.to(
+          lineOne,
+          { yPercent: 0, rotateX: 0, duration: 0.9, ease: 'power4.out', stagger: 0.08 },
+          0.1
+        )
+          .to(contentWord, { x: 0, duration: 1.1, ease: 'power3.out' }, 0.3)
           .to(
             lineTwo,
             { yPercent: 0, rotateX: 0, duration: 0.9, ease: 'power4.out', stagger: 0.08 },
-            1.0
+            0.75
           )
-          .to(strokes, { strokeDashoffset: 0, duration: 0.85, ease: 'power2.inOut' }, 1.95)
-          .to('.hero-fade', { autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 2.25);
+          .to(strokes, { strokeDashoffset: 0, duration: 0.85, ease: 'power2.inOut' }, 1.7)
+          .to('.hero-fade', { autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 2.0);
       };
 
       playRef = play;
@@ -234,47 +227,6 @@ export function Hero() {
     };
   }, [reduced]);
 
-  // ---- shutter scroll-out ----
-  useEffect(() => {
-    const section = sectionRef.current;
-    const shell = shellRef.current;
-    if (!section || !shell || reduced) return;
-
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: 'top top',
-          end: '+=75%',
-          pin: true,
-          scrub: 0.6,
-          anticipatePin: 1,
-        },
-      });
-      // The card closes and tips away from the viewer like a page turning
-      // forward: height collapse + a −12° rotateX hinged on its top edge.
-      tl.to(shell, { height: 0, minHeight: 0, ease: 'none' }, 0)
-        .to(
-          shell,
-          { rotateX: -12, transformPerspective: 1500, transformOrigin: '50% 0%', ease: 'none' },
-          0
-        )
-        .to(mediaRef.current, { yPercent: 7, scale: 1.04, ease: 'none' }, 0)
-        .to(headlineRef.current, { yPercent: -18, autoAlpha: 0, ease: 'none' }, 0)
-        // The film closes behind a darkening veil as the card shuts, so the cut
-        // into the next section is a dip to black rather than a bright edge
-        // sliding up the screen. Scrubbed, so scrolling back lifts it again.
-        .to(veilRef.current, { opacity: 0.82, ease: 'none' }, 0.15);
-      gsap.to('.hero-controls', {
-        autoAlpha: 0,
-        ease: 'none',
-        scrollTrigger: { trigger: section, start: 'top top', end: '+=22%', scrub: true },
-      });
-    }, sectionRef.current);
-
-    return () => ctx.revert();
-  }, [reduced]);
-
   // Idle life on the film itself: a 14-second 1.00 → 1.06 push that never
   // settles flat. Skipped entirely for reduced motion.
   useEffect(() => {
@@ -301,30 +253,26 @@ export function Hero() {
   };
 
   return (
-    <section id="hero" ref={sectionRef} data-theme="motion" className="relative w-full">
-      {/* The hero is a measured region, not the whole viewport: 82svh of film at
-          most, so the composition stays a hero rather than a page of video. It
-          is capped at 900px so a tall monitor does not stretch the footage, and
-          floored at 560px so a short laptop window still holds the headline. */}
-      <div
-        ref={shellRef}
-        className="relative mx-3 my-3 h-[clamp(560px,82svh,900px)] origin-top overflow-hidden rounded-[24px] bg-ink"
-      >
-        {/* Media. From 1280 px it is the full-bleed film behind the headline.
-            Below that it is a framed panel above the headline, so neither the
-            vertical cut nor the widescreen film is cropped to fill a box: the
-            panel keeps its own ratio and shrinks to the viewport height.
-            The 8 px bleed at xl is the deepest pointer-parallax layer's room. */}
-        <div
-          ref={mediaRef}
-          className="absolute -inset-2 overflow-hidden bg-ink"
-        >
-          <div ref={revealRef} className="relative h-full w-full overflow-hidden">
+    <section
+      id="hero"
+      ref={sectionRef}
+      data-theme="motion"
+      className="hero-screen relative w-full overflow-hidden bg-ink"
+    >
+      {/* One viewport of film, edge to edge. No card, no gutter, no caption
+          underneath: the section is the frame, so the opening screen is the film
+          itself and the next section starts on the very next scroll. */}
+      <div ref={shellRef} className="absolute inset-0 overflow-hidden bg-ink">
+        {/* Media: the whole frame at every breakpoint. The 12 px bleed is the
+            pointer-parallax layer's room, so the film can drift against the type
+            without ever showing the ink ground at an edge. */}
+        <div ref={mediaRef} className="absolute -inset-3 overflow-hidden bg-ink">
+          <div className="relative h-full w-full overflow-hidden">
             {hasVideo && !failed ? (
               <video
                 key={videoSrc}
                 ref={videoRef}
-                className="h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover object-center"
                 src={videoSrc}
                 poster={posterSrc || undefined}
                 autoPlay={!reduced}
@@ -354,7 +302,11 @@ export function Hero() {
             ) : posterSrc ? (
               /* A failed or blocked film keeps a real frame from it — the hero
                  never collapses to a black rectangle. */
-              <img src={posterSrc} alt="" className="h-full w-full object-cover" />
+              <img
+                src={posterSrc}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
             ) : (
               <HeroMontage paused={paused} />
             )}
@@ -367,11 +319,11 @@ export function Hero() {
             shy of 25% so the violet studio light and the burnt-orange
             highlights keep their colour and their shadow detail. */}
         <div className="pointer-events-none absolute inset-0 z-[1] bg-black/20" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[26%] bg-gradient-to-b from-black/45 via-black/12 to-transparent xl:h-[26%] xl:from-black/25" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[54%] bg-gradient-to-t from-black/62 via-black/24 to-transparent xl:h-[46%] xl:from-black/48 xl:via-black/16" />
-        {/* Exit veil: animated only by the scroll-out timeline. */}
-        <div ref={veilRef} className="pointer-events-none absolute inset-0 z-[2] bg-ink opacity-0" />
-
+        {/* Opacity steps must be on Tailwind's scale (multiples of five): 62 and
+            24 silently dropped the whole bottom gradient, which left the
+            headline sitting bare on bright frames. */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[26%] bg-gradient-to-b from-black/45 via-black/10 to-transparent xl:from-black/25" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[54%] bg-gradient-to-t from-black/60 via-black/25 to-transparent xl:h-[50%] xl:from-black/50 xl:via-black/20" />
         <div
           ref={headlineRef}
           className="absolute inset-x-0 bottom-[max(5.4rem,13%)] z-10 px-4 xl:bottom-[12%]"

@@ -69,11 +69,10 @@ export function Intro() {
         // from the viewport so no letter can reach the paragraph below or leak
         // into the next section.
         const narrow = vw < 768;
-        // Parked a little inside the right edge, not past it: during the hero's
-        // shutter the first word is already on screen, so the hand-off never
-        // shows a blank band with a line waiting off-stage. A phone's line is
-        // small enough that 0.78 still reads as empty cream, so it starts
-        // further in and the word is legible at the seam.
+        // Parked a little inside the right edge, not past it: by the time the
+        // pin starts, the first word is already on screen, so the stage never
+        // opens on an empty line. A phone's line is small enough that 0.78 would
+        // still read as empty cream, so it starts further in.
         const x = (narrow ? vw * 0.62 : vw * 0.78) - p * (lineW + vw * 1.05);
         line.style.transform = `translate3d(${x}px,0,0)`;
         const yAmp = narrow ? 62 : 120;
@@ -172,10 +171,10 @@ export function Intro() {
   });
 
   return (
-    // The section opens on its own supporting copy rather than on empty cream:
-    // the hero card ends 18svh above the fold, and this is what sits in that
-    // band — a compact editorial lead, on the page ground, in the same voice.
-    <section id="intro" ref={sectionRef} className="relative bg-cream motion-safe:-mt-[75svh]">
+    // The hero is now one full viewport with nothing underneath it, so this
+    // section follows on the next scroll with no overlap: its own lead copy is
+    // the first thing after the film, then the marquee stage.
+    <section id="intro" ref={sectionRef} className="relative bg-cream">
       <div className={reduced ? 'relative' : 'relative h-[100svh] overflow-hidden'}>
         {reduced ? (
           <div className="flex flex-col items-start gap-7 px-[var(--dd-gutter)] pb-[10svh] pt-[clamp(1.25rem,3.2vw,3.5rem)]">
@@ -189,10 +188,9 @@ export function Intro() {
           </div>
         ) : (
           <>
-            {/* The lead-in: the section's existing description, brought up to the
-                seam under the hero instead of waiting in the lower third of a
-                pinned screen. 20px under the card on a phone, 56px on a wide
-                desktop — the section's own padding, no negative margins. */}
+            {/* The lead-in: the section's existing description at the top of the
+                pin, so the first thing after the film is the studio's own
+                sentence. It is paced out before the fixed header can reach it. */}
             <div className="absolute inset-x-0 top-[clamp(1.25rem,3.2vw,3.5rem)] z-[1] px-[var(--dd-gutter)]">
               <p
                 ref={paragraphRef}

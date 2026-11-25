@@ -647,11 +647,15 @@ button {
   }
 }
 
-/* ---- hero media panel ----------------------------------------------------
-   Below 1280 px the film is a framed panel above the headline. Its width is
-   capped by the viewport height so the panel and the headline always fit, and
-   the video keeps its own aspect ratio instead of being cropped to fill a box.
-   At 1280 px and up the panel becomes the full-bleed widescreen film. */
+/* ---- the opening screen ---------------------------------------------------
+   The hero is exactly one viewport tall at every breakpoint: the film, the
+   mark, the label and the transport all live inside the first fold, and the
+   next section begins immediately after it. svh keeps the frame stable while a
+   phone's URL bar slides; vh is the fallback where svh is unsupported. */
+.hero-screen {
+  height: 100vh;
+  height: 100svh;
+}
 
 /* ---- header ground -------------------------------------------------------
    The header is fixed over nine sections with two surface colours, so the mark

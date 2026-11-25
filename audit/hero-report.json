@@ -1,0 +1,176 @@
+{
+  "1920x1080": {
+    "heroHeight": 1080,
+    "mediaBox": {
+      "x": -26,
+      "y": -20,
+      "w": 1973,
+      "h": 1120
+    },
+    "source": "desi-draft-hero-16x9.mp4",
+    "headline": {
+      "top": 777,
+      "bottom": 950,
+      "left": 260,
+      "right": 1660
+    },
+    "controls": [
+      "Pause reel",
+      "Fullscreen",
+      "Turn sound on"
+    ],
+    "introTop": 1080,
+    "overflowX": 0,
+    "pageHeight": 12539
+  },
+  "1440x900": {
+    "heroHeight": 900,
+    "mediaBox": {
+      "x": -22,
+      "y": -18,
+      "w": 1484,
+      "h": 936
+    },
+    "source": "desi-draft-hero-16x9.mp4",
+    "headline": {
+      "top": 633,
+      "bottom": 792,
+      "left": 20,
+      "right": 1420
+    },
+    "controls": [
+      "Pause reel",
+      "Fullscreen",
+      "Turn sound on"
+    ],
+    "introTop": 900,
+    "overflowX": 0,
+    "pageHeight": 11238
+  },
+  "1366x768": {
+    "heroHeight": 768,
+    "mediaBox": {
+      "x": -21,
+      "y": -17,
+      "w": 1408,
+      "h": 803
+    },
+    "source": "desi-draft-hero-16x9.mp4",
+    "headline": {
+      "top": 525,
+      "bottom": 676,
+      "left": 16,
+      "right": 1350
+    },
+    "controls": [
+      "Pause reel",
+      "Fullscreen",
+      "Turn sound on"
+    ],
+    "introTop": 768,
+    "overflowX": 0,
+    "pageHeight": 10133
+  },
+  "1280x800": {
+    "heroHeight": 800,
+    "mediaBox": {
+      "x": -21,
+      "y": -18,
+      "w": 1322,
+      "h": 836
+    },
+    "source": "desi-draft-hero-16x9.mp4",
+    "headline": {
+      "top": 562,
+      "bottom": 704,
+      "left": 16,
+      "right": 1264
+    },
+    "controls": [
+      "Pause reel",
+      "Fullscreen",
+      "Turn sound on"
+    ],
+    "introTop": 800,
+    "overflowX": 0,
+    "pageHeight": 10276
+  },
+  "1024x768": {
+    "heroHeight": 768,
+    "mediaBox": {
+      "x": -22,
+      "y": -19,
+      "w": 1068,
+      "h": 807
+    },
+    "source": "desi-draft-hero-16x9.mp4",
+    "headline": {
+      "top": 554,
+      "bottom": 668,
+      "left": 16,
+      "right": 1008
+    },
+    "controls": [
+      "Pause reel",
+      "Fullscreen",
+      "Turn sound on"
+    ],
+    "introTop": 768,
+    "overflowX": 0,
+    "pageHeight": 10450
+  },
+  "430x932": {
+    "heroHeight": 932,
+    "mediaBox": {
+      "x": -15,
+      "y": -19,
+      "w": 460,
+      "h": 969
+    },
+    "source": "hero-mobile-portrait.mp4",
+    "headline": {
+      "top": 690,
+      "bottom": 811,
+      "left": 16,
+      "right": 414
+    },
+    "controls": [
+      "Pause reel",
+      "Fullscreen",
+      "Turn sound on"
+    ],
+    "introTop": 932,
+    "overflowX": 0,
+    "pageHeight": 13148
+  },
+  "390x844": {
+    "heroHeight": 844,
+    "mediaBox": {
+      "x": -15,
+      "y": -18,
+      "w": 420,
+      "h": 880
+    },
+    "source": "hero-mobile-portrait.mp4",
+    "headline": {
+      "top": 625,
+      "bottom": 734,
+      "left": 16,
+      "right": 374
+    },
+    "controls": [
+      "Pause reel",
+      "Fullscreen",
+      "Turn sound on"
+    ],
+    "introTop": 844,
+    "overflowX": 0,
+    "pageHeight": 12883
+  },
+  "reduced": {
+    "height": 900,
+    "covers": true,
+    "headline": "1",
+    "headlineBox": 633
+  }
+}
