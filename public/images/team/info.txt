@@ -11,7 +11,9 @@ Ashlee  — /images/team/ashlee.webp   (806 × 1080, WebP, alpha)
 Riddhi  — /images/team/riddhi.webp   (806 × 1080, WebP, alpha)
 Aastha  — /images/team/aastha.webp   (806 × 1080, WebP, alpha)
 Prince  — /images/team/prince.webp   (806 × 1080, WebP, alpha)
-Foil tile — /images/team/holo-pattern.svg
+Foil tile — /images/team/holo-pattern-dd.png (1320 × 1320 PNG, alpha)
+DD mark  — /images/team/dd-monogram.png (274 × 262, white on transparent)
+Aura SVG — /images/team/holo-pattern.svg (source only: ring, dots and rules)
 
 ORIGINAL FILES (kept in this folder, not requested by the site):
 Ashlee.png, Riddhi.png, Aastha.png, Prince_Yadav.png
@@ -52,6 +54,17 @@ CARD
 Component: src/components/ui/ProfileCard.jsx + ProfileCard.css (React Bits source)
 Data: src/data/team.ts — one record per member
 Status: CORE TEAM · contact opens the member's own Instagram profile
+Foil mask: iconUrl = /images/team/holo-pattern-dd.png (mask-image, 180% auto, repeat)
+
+DD MONOGRAM IN THE FOIL TILE
+Source: the supplied DD logo (black serif monogram on an opaque white ground,
+303 × 320). Isolated, keyed to alpha and trimmed to 274 × 262 — the mark only:
+no wordmark, no badge, no background. Proportions untouched.
+The four-point sparkles that used to sit in the tile (one large top-right, two
+small, two outlined) are replaced by this mark at the same centres and the same
+bounding boxes, so the decoration keeps its scale hierarchy. The aura — doodle
+ring, dots and rules — is unchanged, so the iridescent foil still shimmers
+around the mark. Rebuild: node audit/tools/dd-holo-tile.mjs
 
 --- ORIGINAL NOTES (as supplied) ---
 

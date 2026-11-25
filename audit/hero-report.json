@@ -2,15 +2,24 @@
   "1920x1080": {
     "heroHeight": 1080,
     "mediaBox": {
-      "x": -26,
+      "x": -21,
       "y": -20,
-      "w": 1973,
-      "h": 1120
+      "w": 1962,
+      "h": 1115
+    },
+    "frame": {
+      "left": 5,
+      "top": 0,
+      "right": 5,
+      "bottom": 5,
+      "radiusBottom": "24px",
+      "radiusTop": "0px",
+      "overflow": "hidden"
     },
     "source": "desi-draft-hero-16x9.mp4",
     "headline": {
-      "top": 777,
-      "bottom": 950,
+      "top": 772,
+      "bottom": 946,
       "left": 260,
       "right": 1660
     },
@@ -26,17 +35,26 @@
   "1440x900": {
     "heroHeight": 900,
     "mediaBox": {
-      "x": -22,
+      "x": -17,
       "y": -18,
-      "w": 1484,
-      "h": 936
+      "w": 1474,
+      "h": 931
+    },
+    "frame": {
+      "left": 5,
+      "top": 0,
+      "right": 5,
+      "bottom": 5,
+      "radiusBottom": "23.04px",
+      "radiusTop": "0px",
+      "overflow": "hidden"
     },
     "source": "desi-draft-hero-16x9.mp4",
     "headline": {
-      "top": 633,
-      "bottom": 792,
-      "left": 20,
-      "right": 1420
+      "top": 629,
+      "bottom": 788,
+      "left": 21,
+      "right": 1419
     },
     "controls": [
       "Pause reel",
@@ -50,17 +68,26 @@
   "1366x768": {
     "heroHeight": 768,
     "mediaBox": {
-      "x": -21,
+      "x": -17,
       "y": -17,
-      "w": 1408,
-      "h": 803
+      "w": 1399,
+      "h": 798
+    },
+    "frame": {
+      "left": 5,
+      "top": 0,
+      "right": 5,
+      "bottom": 5,
+      "radiusBottom": "21.856px",
+      "radiusTop": "0px",
+      "overflow": "hidden"
     },
     "source": "desi-draft-hero-16x9.mp4",
     "headline": {
-      "top": 525,
-      "bottom": 676,
-      "left": 16,
-      "right": 1350
+      "top": 521,
+      "bottom": 671,
+      "left": 21,
+      "right": 1345
     },
     "controls": [
       "Pause reel",
@@ -74,17 +101,26 @@
   "1280x800": {
     "heroHeight": 800,
     "mediaBox": {
-      "x": -21,
+      "x": -16,
       "y": -18,
-      "w": 1322,
-      "h": 836
+      "w": 1312,
+      "h": 831
+    },
+    "frame": {
+      "left": 5,
+      "top": 0,
+      "right": 5,
+      "bottom": 5,
+      "radiusBottom": "20.48px",
+      "radiusTop": "0px",
+      "overflow": "hidden"
     },
     "source": "desi-draft-hero-16x9.mp4",
     "headline": {
-      "top": 562,
-      "bottom": 704,
-      "left": 16,
-      "right": 1264
+      "top": 558,
+      "bottom": 700,
+      "left": 21,
+      "right": 1259
     },
     "controls": [
       "Pause reel",
@@ -98,17 +134,26 @@
   "1024x768": {
     "heroHeight": 768,
     "mediaBox": {
-      "x": -22,
-      "y": -19,
-      "w": 1068,
-      "h": 807
+      "x": -14,
+      "y": -17,
+      "w": 1052,
+      "h": 798
+    },
+    "frame": {
+      "left": 5,
+      "top": 0,
+      "right": 5,
+      "bottom": 5,
+      "radiusBottom": "16.384px",
+      "radiusTop": "0px",
+      "overflow": "hidden"
     },
     "source": "desi-draft-hero-16x9.mp4",
     "headline": {
-      "top": 554,
-      "bottom": 668,
-      "left": 16,
-      "right": 1008
+      "top": 549,
+      "bottom": 664,
+      "left": 21,
+      "right": 1003
     },
     "controls": [
       "Pause reel",
@@ -122,17 +167,26 @@
   "430x932": {
     "heroHeight": 932,
     "mediaBox": {
-      "x": -15,
+      "x": -10,
       "y": -19,
-      "w": 460,
-      "h": 969
+      "w": 450,
+      "h": 964
+    },
+    "frame": {
+      "left": 5,
+      "top": 0,
+      "right": 5,
+      "bottom": 5,
+      "radiusBottom": "14px",
+      "radiusTop": "0px",
+      "overflow": "hidden"
     },
     "source": "hero-mobile-portrait.mp4",
     "headline": {
-      "top": 690,
-      "bottom": 811,
-      "left": 16,
-      "right": 414
+      "top": 686,
+      "bottom": 807,
+      "left": 21,
+      "right": 409
     },
     "controls": [
       "Pause reel",
@@ -146,17 +200,26 @@
   "390x844": {
     "heroHeight": 844,
     "mediaBox": {
-      "x": -15,
+      "x": -10,
       "y": -18,
-      "w": 420,
-      "h": 880
+      "w": 410,
+      "h": 875
+    },
+    "frame": {
+      "left": 5,
+      "top": 0,
+      "right": 5,
+      "bottom": 5,
+      "radiusBottom": "14px",
+      "radiusTop": "0px",
+      "overflow": "hidden"
     },
     "source": "hero-mobile-portrait.mp4",
     "headline": {
-      "top": 625,
-      "bottom": 734,
-      "left": 16,
-      "right": 374
+      "top": 621,
+      "bottom": 730,
+      "left": 21,
+      "right": 369
     },
     "controls": [
       "Pause reel",
@@ -171,6 +234,6 @@
     "height": 900,
     "covers": true,
     "headline": "1",
-    "headlineBox": 633
+    "headlineBox": 629
   }
 }

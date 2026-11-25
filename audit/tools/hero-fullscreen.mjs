@@ -62,6 +62,9 @@ for (const [w, h] of VIEWPORTS) {
     const h1 = hero.querySelector('h1');
     const label = hero.querySelector('#hero span');
     const intro = document.querySelector('#intro');
+    const shell = hero.firstElementChild;
+    const shellRect = shell.getBoundingClientRect();
+    const shellStyle = getComputedStyle(shell);
     const mediaRect = media.getBoundingClientRect();
     const h1Rect = h1.getBoundingClientRect();
     const controls = Array.from(hero.querySelectorAll('button')).map((b) => {
@@ -108,12 +111,36 @@ for (const [w, h] of VIEWPORTS) {
       overflowX: document.documentElement.scrollWidth - vp.w,
       pageHeight: document.documentElement.scrollHeight,
       fullscreenShell: Boolean(hero.firstElementChild?.classList.contains('absolute')),
+      // The card frame: 5px in from left/right/bottom, flush to the top, with a
+      // rounded bottom edge. The gaps are read from the shell's own rectangle so
+      // padding, margin or a transform on the film cannot fake them.
+      frame: {
+        left: Math.round(shellRect.left),
+        top: Math.round(shellRect.top),
+        right: Math.round(vp.w - shellRect.right),
+        bottom: Math.round(vp.h - shellRect.bottom),
+        radiusBottom: shellStyle.borderBottomLeftRadius,
+        radiusTop: shellStyle.borderTopLeftRadius,
+        overflow: shellStyle.overflow,
+      },
     };
   });
 
   const tag = `${w}x${h}`;
   if (data.heroHeight !== h) fail(`${tag}: hero height ${data.heroHeight}, viewport ${h}`);
   if (data.heroTop !== 0) fail(`${tag}: hero starts at ${data.heroTop}`);
+  if (data.frame.left !== 5 || data.frame.right !== 5) {
+    fail(`${tag}: side gap ${data.frame.left}/${data.frame.right}, want 5/5`);
+  }
+  if (data.frame.bottom !== 5) fail(`${tag}: bottom gap ${data.frame.bottom}, want 5`);
+  if (data.frame.top !== 0) fail(`${tag}: top gap ${data.frame.top}, want 0`);
+  const radiusAndOverflowOk =
+    parseFloat(data.frame.radiusBottom) >= 12 &&
+    parseFloat(data.frame.radiusTop) === 0 &&
+    /hidden|clip/.test(data.frame.overflow);
+  if (!radiusAndOverflowOk) {
+    fail(`${tag}: frame radius ${data.frame.radiusTop}/${data.frame.radiusBottom} overflow ${data.frame.overflow}`);
+  }
   if (data.mediaBox.x > 0 || data.mediaBox.y > 0 || data.mediaBox.x + data.mediaBox.w < w || data.mediaBox.y + data.mediaBox.h < h) {
     fail(`${tag}: film does not cover viewport ${JSON.stringify(data.mediaBox)}`);
   }
@@ -144,6 +171,7 @@ for (const [w, h] of VIEWPORTS) {
   report[tag] = {
     heroHeight: data.heroHeight,
     mediaBox: data.mediaBox,
+    frame: data.frame,
     source: data.currentSrc.split('/').pop(),
     headline: data.headline.box,
     controls: data.controls.map((c) => `${c.label}${c.inside && c.hittable ? '' : '!'}`),

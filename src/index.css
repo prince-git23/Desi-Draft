@@ -431,13 +431,17 @@ button {
 }
 
 /* ---- manifesto hand-off --------------------------------------------------
-   The section is pulled a full viewport over the pinned intro so no blank
-   spacer shows on desktop. On a phone that pull put the manifesto heading on
-   screen while the travelling sentence was still crossing; with the shorter
-   mobile pin there is nothing to cover, so the two compose one at a time. */
+   The section is pulled over the pinned intro so the empty tail of the pin is
+   never scrolled as bare cream. Desktop takes a whole viewport, which is what
+   its 165% pin leaves free. A phone pins for 60% of a screen, so it takes
+   65svh: one intro screen (100svh) minus the 35svh the incoming heading needs
+   to stay below the travelling sentence's band. The heading therefore lands
+   just under the sentence as the pin releases, and the section below fills the
+   frame ~300px later instead of after a full screen of nothing. Without the pin
+   (reduced motion) the section is a normal block and carries no pull. */
 @media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
   #manifesto {
-    margin-top: 0;
+    margin-top: -65svh;
   }
 }
 
@@ -655,6 +659,13 @@ button {
 .hero-screen {
   height: 100vh;
   height: 100svh;
+}
+
+/* Fullscreen drops the 5px frame: the shell is the fullscreen element, and its
+   inset would otherwise show as a black border around the film. */
+.hero-screen > div:fullscreen {
+  inset: 0;
+  border-radius: 0;
 }
 
 /* ---- header ground -------------------------------------------------------

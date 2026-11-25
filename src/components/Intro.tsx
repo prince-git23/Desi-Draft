@@ -28,7 +28,14 @@ export function Intro() {
     const line = lineRef.current;
     if (!section || !line || reduced) return;
 
-    const ctx = gsap.context(() => {
+    // A phone and a laptop need different pins, so each breakpoint gets its own
+    // ScrollTrigger from gsap.matchMedia: crossing 768px reverts the old context
+    // (trigger, paragraph tween and its inline styles) and builds a fresh one
+    // with re-measured letters, instead of stacking a second pin on the first.
+    const mm = gsap.matchMedia();
+
+    mm.add({ phone: '(max-width: 767px)', wide: '(min-width: 768px)' }, (context) => {
+      const phone = Boolean(context.conditions?.phone);
       const letters = Array.from(line.querySelectorAll<HTMLElement>('.intro-char'));
       const stickers = Array.from(line.querySelectorAll<HTMLElement>('.intro-sticker'));
       let metrics = letters.map((l) => ({ left: l.offsetLeft, w: l.offsetWidth }));
@@ -73,7 +80,15 @@ export function Intro() {
         // pin starts, the first word is already on screen, so the stage never
         // opens on an empty line. A phone's line is small enough that 0.78 would
         // still read as empty cream, so it starts further in.
-        const x = (narrow ? vw * 0.62 : vw * 0.78) - p * (lineW + vw * 1.05);
+        const startX = narrow ? vw * 0.62 : vw * 0.78;
+        // On a phone the travel is measured from the line's own width, so the
+        // last letter clears the left edge at progress 1 — exactly when the pin
+        // releases. The old fixed 1.05vw overshoot finished the sweep around
+        // 0.65, so the rest of the pin scrolled a parked, off-screen line and
+        // nothing else: that dead tail was the blank cream after the sentence.
+        // Desktop keeps its original pace and start offset untouched.
+        const travel = narrow ? startX + lineW + 40 : lineW + vw * 1.05;
+        const x = startX - p * travel;
         line.style.transform = `translate3d(${x}px,0,0)`;
         const yAmp = narrow ? 62 : 120;
         const exitAmp = narrow ? 62 : 120;
@@ -120,12 +135,10 @@ export function Intro() {
         // The sentence crosses the viewport in one screen of travel. The old
         // +=300% held the pin for three screens, which left two of them blank on
         // every device and made the section feel stuck rather than paced.
-        // On a phone the next section used to arrive in the bottom half of the
-        // screen while the sentence was still crossing, so the pinned line and
-        // the manifesto heading read as one muddled composition. The shorter
-        // pin plus the removed overlap below means the hand-off happens once the
-        // sentence has left the frame.
-        end: () => (window.innerWidth < 768 ? '+=85%' : '+=165%'),
+        // A phone holds it for 60% of a screen instead of 165%: the sweep is
+        // already finished when the pin releases, and the shorter hold keeps the
+        // hand-off to the manifesto within a third of a screen.
+        end: phone ? '+=60%' : '+=165%',
         pin: true,
         anticipatePin: 1,
         onUpdate: (self) => render(self.progress),
@@ -152,9 +165,9 @@ export function Intro() {
 
       placeStickers();
       render(0);
-    }, sectionRef.current);
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, [reduced]);
 
   const chars = SENTENCE.split('').map((ch, i) => {

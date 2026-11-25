@@ -259,10 +259,18 @@ export function Hero() {
       data-theme="motion"
       className="hero-screen relative w-full overflow-hidden bg-ink"
     >
-      {/* One viewport of film, edge to edge. No card, no gutter, no caption
-          underneath: the section is the frame, so the opening screen is the film
-          itself and the next section starts on the very next scroll. */}
-      <div ref={shellRef} className="absolute inset-0 overflow-hidden bg-ink">
+      {/* One viewport of film, docked to the top edge and set 5px in from the
+          left, right and bottom, with the bottom edge rounded: the film reads as
+          one full-height card rather than a band in a box. The gap is the
+          section's own ink ground showing through — a margin (inset) around the
+          film, not padding inside it, so the headline and transport keep their
+          own placement and nothing is squeezed. No top gap: a rounded corner on
+          a flush edge would cut a notch out of the film, so the top meets the
+          viewport square and the card shape lives at the bottom. */}
+      <div
+        ref={shellRef}
+        className="absolute inset-x-[5px] bottom-[5px] top-0 overflow-hidden rounded-b-[clamp(14px,1.6vw,24px)] bg-ink"
+      >
         {/* Media: the whole frame at every breakpoint. The 12 px bleed is the
             pointer-parallax layer's room, so the film can drift against the type
             without ever showing the ink ground at an edge. */}

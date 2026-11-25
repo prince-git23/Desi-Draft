@@ -7,8 +7,9 @@ import { Chapter } from './ui/Chapter';
 
 const COUNT_WORD = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
 
-/** The studio's own foil tile: sparkle, burst and doodle marks (see the SVG). */
-const TEAM_PATTERN = '/images/team/holo-pattern.svg';
+/** The studio's own foil tile: the DD monogram and the aura marks around it
+ *  (see public/images/team/holo-pattern-dd.png, built by audit/tools/dd-holo-tile.mjs). */
+const TEAM_PATTERN = '/images/team/holo-pattern-dd.png';
 
 /**
  * The people. One holographic ProfileCard per record in `data/team`, on a
