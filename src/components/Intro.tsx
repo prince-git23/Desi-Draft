@@ -64,14 +64,18 @@ export function Intro() {
       const render = (p: number) => {
         const vw = window.innerWidth;
         const lineW = line.scrollWidth || 1;
-        const x = vw * 0.92 - p * (lineW + vw * 1.05);
-        line.style.transform = `translate3d(${x}px,0,0)`;
-
         // A phone gets a smaller version of the same idea, not the desktop
         // distances squeezed in: the scatter and the exit drop are re-measured
         // from the viewport so no letter can reach the paragraph below or leak
         // into the next section.
         const narrow = vw < 768;
+        // Parked a little inside the right edge, not past it: during the hero's
+        // shutter the first word is already on screen, so the hand-off never
+        // shows a blank band with a line waiting off-stage. A phone's line is
+        // small enough that 0.78 still reads as empty cream, so it starts
+        // further in and the word is legible at the seam.
+        const x = (narrow ? vw * 0.62 : vw * 0.78) - p * (lineW + vw * 1.05);
+        line.style.transform = `translate3d(${x}px,0,0)`;
         const yAmp = narrow ? 62 : 120;
         const exitAmp = narrow ? 62 : 120;
         const rotAmp = narrow ? 16 : 34;
@@ -109,11 +113,6 @@ export function Intro() {
           el.style.transform = `translate3d(${px.toFixed(2)}px,${py.toFixed(2)}px,0)`;
         });
 
-        if (paragraphRef.current) {
-          const fade = p < 0.84 ? 1 : Math.max(0, 1 - (p - 0.84) / 0.14);
-          paragraphRef.current.style.opacity = `${fade}`;
-          paragraphRef.current.style.transform = `translate3d(0,${(1 - fade) * -60}px,0)`;
-        }
       };
 
       const trigger = ScrollTrigger.create({
@@ -138,13 +137,18 @@ export function Intro() {
         },
       });
 
-      gsap.set('.intro-ui', { autoAlpha: 0, y: 20 });
-      gsap.to('.intro-ui', {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: section, start: 'top top', end: '+=12%', scrub: true },
+      // The lead is the section's own supporting copy, sitting in the band the
+      // hero card leaves beneath itself — so it has to be readable there at rest,
+      // not faded in 12% into the pin. It leaves as the marquee stage arrives:
+      // by the time the section's top edge reaches the fixed header the lead is
+      // gone, so the two never overlap. The exit ends at 10% rather than 0 so the
+      // last of it is off screen a full 20–130px above the header, instead of
+      // ghosting through it.
+      gsap.to(paragraphRef.current, {
+        autoAlpha: 0,
+        y: -18,
+        ease: 'none',
+        scrollTrigger: { trigger: section, start: 'top 30%', end: 'top 10%', scrub: true },
       });
 
       placeStickers();
@@ -168,20 +172,37 @@ export function Intro() {
   });
 
   return (
+    // The section opens on its own supporting copy rather than on empty cream:
+    // the hero card ends 18svh above the fold, and this is what sits in that
+    // band — a compact editorial lead, on the page ground, in the same voice.
     <section id="intro" ref={sectionRef} className="relative bg-cream motion-safe:-mt-[75svh]">
-      <div className="relative h-[100svh] overflow-hidden">
+      <div className={reduced ? 'relative' : 'relative h-[100svh] overflow-hidden'}>
         {reduced ? (
-          <div className="flex h-full flex-col items-center justify-center gap-10 px-6">
-            <p className="display max-w-[1100px] text-center text-[clamp(2.4rem,8vw,6rem)] text-ink">
+          <div className="flex flex-col items-start gap-7 px-[var(--dd-gutter)] pb-[10svh] pt-[clamp(1.25rem,3.2vw,3.5rem)]">
+            <p className="display max-w-[1100px] text-[clamp(2.4rem,8vw,6rem)] text-ink">
               we wanna be where the people are
             </p>
-            <p className="max-w-[420px] text-center text-[16px] leading-[1.4] text-ink/75">
+            <p className="max-w-[30rem] text-[15px] leading-[1.45] text-ink/75 sm:text-[16px]">
               Every feed has its own rhythm. We plan, write, shoot and cut for the one your audience
               actually scrolls — with the same three people from first call to export.
             </p>
           </div>
         ) : (
           <>
+            {/* The lead-in: the section's existing description, brought up to the
+                seam under the hero instead of waiting in the lower third of a
+                pinned screen. 20px under the card on a phone, 56px on a wide
+                desktop — the section's own padding, no negative margins. */}
+            <div className="absolute inset-x-0 top-[clamp(1.25rem,3.2vw,3.5rem)] z-[1] px-[var(--dd-gutter)]">
+              <p
+                ref={paragraphRef}
+                className="max-w-[30rem] text-[15px] leading-[1.45] text-ink/80 sm:text-[16px] sm:leading-[1.4]"
+              >
+                Every feed has its own rhythm. We plan, write, shoot and cut for the one your audience{' '}
+                <em className="serif-i">actually</em> scrolls — with the same three people from first call
+                to export.
+              </p>
+            </div>
             <div
               ref={lineRef}
               className="pointer-events-none absolute left-0 top-[30%] whitespace-nowrap will-change-transform md:top-[36%]"
@@ -211,19 +232,6 @@ export function Intro() {
               </div>
             </div>
 
-            <div
-              className="intro-ui absolute inset-x-0 flex justify-center px-6"
-              style={{ top: 'calc(52% + 11vw)' }}
-            >
-              <p
-                ref={paragraphRef}
-                className="w-[min(420px,84vw)] text-center text-[16px] leading-[1.4] text-ink/80"
-              >
-                Every feed has its own rhythm. We plan, write, shoot and cut for the one your audience{' '}
-                <em className="serif-i">actually</em> scrolls — with the same three people from first call
-                to export.
-              </p>
-            </div>
           </>
         )}
       </div>
