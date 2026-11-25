@@ -495,3 +495,30 @@ Escape closes and returns focus, outside tap closes) and at 1440 (hover opens, l
 toggle). At 75/90/100/110/125/150% browser zoom — emulated as 1920/1600/1440/1309/1152/960 CSS px — the
 headline is painted, the shell stays inside 560–900px, the menu opens inside the viewport and nothing
 overflows: `audit/tools/header-menu.mjs`.
+
+## 9. Team profile cards — 2026-11-25
+
+Four holographic `ProfileCard` instances (React Bits source) on a 4 / 2 / 1 column grid:
+four across from 1280 px, two across 640–1279 px, one per row below 640 px. Verified against
+the dev server with `audit/tools/team-cards.mjs` and `audit/tools/team-scroll-shot.mjs`
+(product of both: `audit/team-report.json`, frames `audit/frames/team-*.png`).
+
+| Viewport | Columns | Card width | Horizontal overflow | Contact button inside card | Handle truncated |
+| --- | --- | --- | --- | --- | --- |
+| 1920 × 1080 | 4 | 340 | 0 | yes | no |
+| 1440 × 900 | 4 | 317 | 0 | yes | no |
+| 1366 × 768 | 4 | 300 | 0 | yes | no |
+| 1280 × 800 | 4 | 280 | 0 | yes | no (footer tightens under 310 px) |
+| 1024 × 768 | 2 | 340 | 0 | yes | no |
+| 820 × 900 | 2 | 340 | 0 | yes | no |
+| 768 × 1024 | 2 | 340 | 0 | yes | no |
+| 430 × 932 | 1 | 340 | 0 | yes | no |
+| 390 × 844 | 1 | 340 | 0 | yes | no |
+| 360 × 800 | 1 | 328 | 0 | yes | no |
+| 320 × 720 | 1 | 288 | 0 | yes | no |
+
+Also checked per viewport: exactly four cards, name / role / handle / `href` / new-tab
+`rel` / aria label on every card, all four portraits decoded, foil mask present, no console
+error from the section. Pointer test at 1440 and 390: the card tilts and catches the light,
+then returns to `rotate 0deg` with the glare fully released. Reduced motion: no tilt
+transform, cards and controls still visible and inside their frames.

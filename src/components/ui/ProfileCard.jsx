@@ -1,264 +1,427 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+'use client';
+
+import { memo, useEffect, useRef } from 'react';
+
 import './ProfileCard.css';
 
-const IDLE = { rx: 0, ry: 0, px: 0, py: 0, gx: 50, gy: 50 };
-
 /**
- * Portrait profile card with a cursor-following glare, foil sheen, parallax and
- * a small tilt. Pointer work is written straight to CSS custom properties from
- * one rAF loop that only exists while the card is moving, so hovering a card
- * never re-renders React and an idle card costs nothing.
+ * ProfileCard — the React Bits holographic profile card, adapted for Desi Draft.
+ *
+ * Behaviour, physics and the CSS layer stack are the upstream implementation:
+ * the pointer feeds one rAF spring loop that writes CSS custom properties, so an
+ * idle card runs no animation at all. Two local changes:
+ *   1. the contact action opens the member's own profile (a semantic anchor with
+ *      a new-tab destination), with `onContactClick` still supported;
+ *   2. the Instagram glyph replaces the upstream Mail glyph, drawn inline so no
+ *      extra icon dependency is shipped for a single icon.
  */
-export function ProfileCard({
-  name = '',
-  role = '',
-  intro = '',
-  handle = '',
-  status = '',
-  image = '',
-  initials = '',
-  index = 0,
-  accent = '#4B63E8',
-  accentInk = '#EEEAE3',
-  surface = '#F3EEE6',
-  theme = 'light',
-  radius = 22,
-  enableTilt = true,
-  tiltStrength = 5,
-  parallax = 3,
-  holo = 0.35,
-  glare = 0.25,
-  enableMobileTilt = false,
-  contactHref = '',
-  onContact = null,
-  contactLabel = 'say hi',
+
+const THEMES = {
+  dark: {
+    '--pc-frame': 'rgba(38, 35, 46, 0.66)',
+    '--pc-frame-edge': 'rgba(255, 255, 255, 0.08)',
+    '--pc-frame-highlight': 'rgba(255, 255, 255, 0.07)',
+    '--pc-frame-shadow': '0 22px 44px -20px rgba(0, 0, 0, 0.8), 0 6px 16px -8px rgba(0, 0, 0, 0.5)',
+    '--pc-tile': 'linear-gradient(180deg, #3a3644 0%, #27242f 100%)',
+    '--pc-tile-edge': 'rgba(255, 255, 255, 0.07)',
+    '--pc-tile-highlight': 'rgba(255, 255, 255, 0.12)',
+    '--pc-tile-shadow': '0 4px 10px -4px rgba(0, 0, 0, 0.7)',
+    '--pc-ink': '#f4f4f5',
+    '--pc-muted': 'rgba(244, 244, 245, 0.66)',
+    '--pc-hover': 'brightness(1.12)',
+    '--pc-press': 'brightness(0.8)',
+    '--pc-shade': 'rgba(0, 0, 0, 0.4)'
+  },
+  light: {
+    '--pc-frame': 'rgba(240, 240, 243, 0.8)',
+    '--pc-frame-edge': 'rgba(24, 24, 27, 0.07)',
+    '--pc-frame-highlight': 'rgba(255, 255, 255, 0.95)',
+    '--pc-frame-shadow': '0 22px 44px -22px rgba(24, 24, 27, 0.3), 0 6px 16px -10px rgba(24, 24, 27, 0.16)',
+    '--pc-tile': 'linear-gradient(180deg, #ffffff 0%, #f6f6f8 100%)',
+    '--pc-tile-edge': 'rgba(24, 24, 27, 0.08)',
+    '--pc-tile-highlight': 'rgba(255, 255, 255, 1)',
+    '--pc-tile-shadow': '0 4px 10px -5px rgba(24, 24, 27, 0.25)',
+    '--pc-ink': '#27272a',
+    '--pc-muted': 'rgba(39, 39, 42, 0.62)',
+    '--pc-hover': 'brightness(0.97)',
+    '--pc-press': 'brightness(0.92)',
+    '--pc-shade': 'rgba(24, 24, 27, 0.14)'
+  }
+};
+
+const FOILS = {
+  dark: {
+    '--pc-blend': 'color-dodge',
+    '--pc-holo-filter': 'hue-rotate(0deg)',
+    '--pc-sheen': 'rgba(255, 255, 255, 0.16)'
+  },
+  light: {
+    '--pc-blend': 'multiply',
+    '--pc-holo-filter': 'invert(1) hue-rotate(180deg)',
+    '--pc-sheen': 'rgba(255, 255, 255, 0)'
+  }
+};
+
+const GRAIN = `url("data:image/svg+xml,${encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='500' height='500'><filter id='g' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0.55 0 0 0 -0.24 0.55 0 0 0 -0.24 0.55 0 0 0 -0.24 0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(#g)'/></svg>"
+)}")`;
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const isDark = color => {
+  const match = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color).trim());
+  if (!match) return null;
+  const hex = match[1].length === 3 ? match[1].replace(/./g, digit => digit + digit) : match[1];
+  const [r, g, b] = [0, 2, 4].map(index => parseInt(hex.slice(index, index + 2), 16) / 255);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5;
+};
+
+/** Instagram glyph, inline: the contact destination is a profile, not a mailbox. */
+const InstagramGlyph = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const ProfileCard = ({
+  avatarUrl = '',
+  iconUrl,
+  miniAvatarUrl,
+  name = 'Javi A. Torres',
+  title = 'Software Engineer',
+  handle = 'javicodes',
+  status = 'Online',
+  statusColor = '#22c55e',
+  contactText = 'Contact',
+  contactUrl = '',
   contactAriaLabel = '',
-  sticker = null,
-  className = '',
-}) {
-  const cardRef = useRef(null);
-  const tiltRef = useRef(null);
-  const [imageFailed, setImageFailed] = useState(false);
+  showUserInfo = true,
+  onContactClick,
+  theme = 'dark',
+  backdropColor,
+  radius = 16,
+  holo = 0.8,
+  glare = 0.5,
+  enableTilt = true,
+  tiltStrength = 12,
+  parallax = 8,
+  enableMobileTilt = false,
+  mobileTiltSensitivity = 5,
+  intro = true,
+  photoPosition = 'center bottom',
+  className = ''
+}) => {
+  const rootRef = useRef(null);
+  const engineRef = useRef(null);
+  const settings = { enableTilt, tiltStrength, parallax, mobileTiltSensitivity, intro };
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
 
   useEffect(() => {
-    setImageFailed(false);
-  }, [image]);
+    const root = rootRef.current;
+    if (!root) return;
 
-  const monogram = useMemo(() => {
-    if (initials) return initials.slice(0, 2).toUpperCase();
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if (parts.length > 1) {
-      return parts.map((part) => part[0]).join('').slice(0, 2).toUpperCase();
-    }
-    // One-word credits: first + last letter reads as a monogram instead of a
-    // lone bar ("I"), and still comes only from the real credit.
-    const word = parts[0] ?? '';
-    return (word.length > 1 ? word[0] + word[word.length - 1] : word).toUpperCase() || '?';
-  }, [initials, name]);
-
-  useEffect(() => {
-    const card = cardRef.current;
-    const tilt = tiltRef.current;
-    if (!card || !tilt) return;
-
-    const current = { ...IDLE };
-    const target = { ...IDLE };
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const size = { width: root.offsetWidth, height: root.offsetHeight };
+    const x = { p: 0, v: 0, target: 0 };
+    const y = { p: 0, v: 0, target: 0 };
+    const light = { p: 0, target: 0 };
     let raf = 0;
-    let bound = false;
+    let last = 0;
+    let slowUntil = 0;
+    let touchId = null;
 
-    const apply = () => {
-      card.style.setProperty('--pc-rx', `${current.rx.toFixed(2)}deg`);
-      card.style.setProperty('--pc-ry', `${current.ry.toFixed(2)}deg`);
-      card.style.setProperty('--pc-px', `${current.px.toFixed(2)}px`);
-      card.style.setProperty('--pc-py', `${current.py.toFixed(2)}px`);
-      card.style.setProperty('--pc-gx', `${current.gx.toFixed(1)}%`);
-      card.style.setProperty('--pc-gy', `${current.gy.toFixed(1)}%`);
+    const write = () => {
+      const { enableTilt: tiltOn, tiltStrength: strength, parallax: depth } = settingsRef.current;
+      const angle = tiltOn && !reduced ? strength : 0;
+      const tilt = Math.min(1, Math.hypot(x.p, y.p));
+      const style = root.style;
+      style.setProperty('--pc-light-x', `${((x.p + 1) * 0.5 * size.width).toFixed(1)}px`);
+      style.setProperty('--pc-light-y', `${((y.p + 1) * 0.5 * size.height).toFixed(1)}px`);
+      style.setProperty('--pc-pointer-x', `${((x.p + 1) * 50).toFixed(2)}%`);
+      style.setProperty('--pc-pointer-y', `${((y.p + 1) * 50).toFixed(2)}%`);
+      style.setProperty('--pc-band-x', `${(50 + x.p * 15).toFixed(2)}%`);
+      style.setProperty('--pc-band-y', `${(50 + y.p * 15).toFixed(2)}%`);
+      style.setProperty('--pc-rotate-x', `${(y.p * angle).toFixed(3)}deg`);
+      style.setProperty('--pc-rotate-y', `${(-x.p * angle).toFixed(3)}deg`);
+      style.setProperty('--pc-shift-x', `${(x.p * (reduced ? 0 : depth)).toFixed(2)}px`);
+      style.setProperty('--pc-shift-y', `${(y.p * (reduced ? 0 : depth)).toFixed(2)}px`);
+      style.setProperty('--pc-reach', tilt.toFixed(4));
+      style.setProperty('--pc-tilt', (tilt * light.p).toFixed(4));
+      style.setProperty('--pc-active', light.p.toFixed(4));
     };
 
-    // One loop per card, and only while it is easing towards the pointer.
-    const tick = () => {
-      raf = 0;
-      let moving = false;
-      for (const key of Object.keys(current)) {
-        const delta = target[key] - current[key];
-        if (Math.abs(delta) > 0.02) {
-          current[key] += delta * 0.18;
-          moving = true;
-        } else {
-          current[key] = target[key];
+    const frame = now => {
+      const dt = Math.min(0.05, (now - last) / 1000 || 0);
+      last = now;
+      const slow = now < slowUntil;
+      const stiffness = slow ? 24 : 120;
+      const damping = slow ? 9 : 16;
+      const steps = Math.max(1, Math.ceil(dt / (1 / 120)));
+      const h = dt / steps;
+      for (let i = 0; i < steps; i++) {
+        for (const axis of [x, y]) {
+          axis.v += (stiffness * (axis.target - axis.p) - damping * axis.v) * h;
+          axis.p += axis.v * h;
         }
       }
-      apply();
-      if (moving) raf = requestAnimationFrame(tick);
-    };
-
-    const reset = () => {
-      Object.assign(target, IDLE);
-      Object.assign(current, IDLE);
-      tilt.dataset.active = 'false';
-      apply();
-    };
-
-    const move = (event) => {
-      const rect = card.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      const nx = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-      const ny = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
-
-      target.gx = nx * 100;
-      target.gy = ny * 100;
-      target.ry = (nx - 0.5) * 2 * tiltStrength;
-      target.rx = (0.5 - ny) * 2 * tiltStrength;
-      target.px = (0.5 - nx) * 2 * parallax;
-      target.py = (0.5 - ny) * 2 * parallax;
-
-      if (!raf) raf = requestAnimationFrame(tick);
-    };
-
-    const enter = () => {
-      tilt.dataset.active = 'true';
-    };
-
-    const leave = () => {
-      Object.assign(target, IDLE);
-      tilt.dataset.active = 'false';
-      if (!raf) raf = requestAnimationFrame(tick);
-    };
-
-    const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
-    const coarse = window.matchMedia('(hover: none), (pointer: coarse)');
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    const unbind = () => {
-      if (!bound) return;
-      card.removeEventListener('pointerenter', enter);
-      card.removeEventListener('pointermove', move);
-      card.removeEventListener('pointerleave', leave);
-      bound = false;
-    };
-
-    const sync = () => {
-      const wants =
-        enableTilt &&
-        !reduce.matches &&
-        (fine.matches || (enableMobileTilt && coarse.matches));
-
-      if (wants && !bound) {
-        card.addEventListener('pointerenter', enter);
-        card.addEventListener('pointermove', move, { passive: true });
-        card.addEventListener('pointerleave', leave);
-        bound = true;
-      } else if (!wants) {
-        unbind();
-        reset();
+      const tau = light.target > light.p ? 0.18 : slow ? 0.9 : 0.45;
+      light.p += (light.target - light.p) * (1 - Math.exp(-dt / tau));
+      write();
+      const moving =
+        Math.abs(x.target - x.p) > 0.0005 ||
+        Math.abs(y.target - y.p) > 0.0005 ||
+        Math.abs(x.v) > 0.0005 ||
+        Math.abs(y.v) > 0.0005 ||
+        Math.abs(light.target - light.p) > 0.002;
+      if (moving) {
+        raf = requestAnimationFrame(frame);
+      } else {
+        x.p = x.target;
+        y.p = y.target;
+        light.p = light.target;
+        write();
+        raf = 0;
       }
     };
 
-    sync();
-    reduce.addEventListener('change', sync);
-    fine.addEventListener('change', sync);
-    coarse.addEventListener('change', sync);
+    const wake = () => {
+      if (raf) return;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    };
 
-    // A layout change mid-hover would leave the card skewed; settle it.
-    const observer = new ResizeObserver(() => reset());
-    observer.observe(card);
+    const aim = (nx, ny, on = true) => {
+      x.target = clamp(nx, -1, 1);
+      y.target = clamp(ny, -1, 1);
+      light.target = on ? 1 : 0;
+      slowUntil = 0;
+      wake();
+    };
+
+    const aimAt = event => {
+      const rect = root.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      aim(((event.clientX - rect.left) / rect.width) * 2 - 1, ((event.clientY - rect.top) / rect.height) * 2 - 1);
+    };
+
+    const release = () => aim(0, 0, false);
+
+    const onEnter = event => {
+      if (event.pointerType === 'mouse') aimAt(event);
+    };
+    const onMove = event => {
+      if (event.pointerType === 'mouse' || event.pointerId === touchId) aimAt(event);
+    };
+    const onLeave = event => {
+      if (event.pointerType === 'mouse') release();
+    };
+    const onDown = event => {
+      if (event.pointerType === 'mouse') return;
+      touchId = event.pointerId;
+      aimAt(event);
+    };
+    const onUp = event => {
+      if (event.pointerId !== touchId) return;
+      touchId = null;
+      release();
+    };
+
+    root.addEventListener('pointerenter', onEnter);
+    root.addEventListener('pointermove', onMove);
+    root.addEventListener('pointerleave', onLeave);
+    root.addEventListener('pointerdown', onDown);
+    root.addEventListener('pointerup', onUp);
+    root.addEventListener('pointercancel', onUp);
+
+    const observer = new ResizeObserver(() => {
+      size.width = root.offsetWidth;
+      size.height = root.offsetHeight;
+      write();
+    });
+    observer.observe(root);
+
+    engineRef.current = { aim, release, write };
+
+    if (settingsRef.current.intro && !reduced) {
+      x.p = 0.62;
+      y.p = -0.55;
+      light.p = 1;
+      slowUntil = performance.now() + 1400;
+      write();
+      wake();
+    } else {
+      write();
+    }
 
     return () => {
-      if (raf) cancelAnimationFrame(raf);
-      unbind();
-      reduce.removeEventListener('change', sync);
-      fine.removeEventListener('change', sync);
-      coarse.removeEventListener('change', sync);
+      cancelAnimationFrame(raf);
       observer.disconnect();
+      root.removeEventListener('pointerenter', onEnter);
+      root.removeEventListener('pointermove', onMove);
+      root.removeEventListener('pointerleave', onLeave);
+      root.removeEventListener('pointerdown', onDown);
+      root.removeEventListener('pointerup', onUp);
+      root.removeEventListener('pointercancel', onUp);
+      engineRef.current = null;
     };
-  }, [enableTilt, tiltStrength, parallax, enableMobileTilt]);
+  }, []);
 
-  const showImage = Boolean(image) && !imageFailed;
-  const number = String(index + 1).padStart(2, '0');
+  useEffect(() => {
+    engineRef.current?.write();
+  }, [enableTilt, tiltStrength, parallax]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || !enableMobileTilt) return;
+
+    let listening = false;
+    const onOrientation = event => {
+      if (event.beta == null || event.gamma == null) return;
+      const sensitivity = settingsRef.current.mobileTiltSensitivity;
+      engineRef.current?.aim((event.gamma * sensitivity) / 150, ((event.beta - 20) * sensitivity) / 150);
+    };
+    const listen = () => {
+      if (listening) return;
+      listening = true;
+      window.addEventListener('deviceorientation', onOrientation);
+    };
+    const onClick = () => {
+      const Motion = window.DeviceOrientationEvent;
+      if (Motion && typeof Motion.requestPermission === 'function') {
+        Motion.requestPermission()
+          .then(state => {
+            if (state === 'granted') listen();
+          })
+          .catch(() => {});
+      } else {
+        listen();
+      }
+    };
+
+    root.addEventListener('click', onClick);
+    return () => {
+      root.removeEventListener('click', onClick);
+      window.removeEventListener('deviceorientation', onOrientation);
+    };
+  }, [enableMobileTilt]);
+
+  const palette = theme === 'light' ? 'light' : 'dark';
+  const foil = backdropColor ? ((isDark(backdropColor) ?? palette === 'dark') ? 'dark' : 'light') : palette;
+  const backdrop = backdropColor
+    ? `linear-gradient(180deg, color-mix(in srgb, ${backdropColor}, #ffffff 12%) 0%, color-mix(in srgb, ${backdropColor}, #000000 18%) 100%)`
+    : 'var(--pc-tile)';
+  const contactLabel = contactAriaLabel || (name ? `${contactText} ${name}` : contactText);
 
   return (
-    <article
-      ref={cardRef}
-      className={`pc ${className}`}
-      data-theme={theme}
-      /* No portrait yet: the poster is flattened so six empty 4:5 panels do not
-         dominate the section. It gets its full height back with a real photo. */
-      data-portrait={showImage ? 'true' : 'false'}
+    <div
+      ref={rootRef}
+      className={`profile-card ${className}`.trim()}
       style={{
-        '--pc-radius': `${radius}px`,
-        '--pc-accent': accent,
-        '--pc-accent-ink': accentInk,
-        '--pc-surface': surface,
-        '--pc-holo': holo,
-        '--pc-glare': glare,
+        ...THEMES[palette],
+        ...FOILS[foil],
+        '--pc-radius': `${Math.max(0, radius)}px`,
+        '--pc-backdrop': backdrop,
+        '--pc-holo': clamp(holo, 0, 1),
+        '--pc-glare': clamp(glare, 0, 1),
+        '--pc-parallax': `${Math.max(0, parallax)}px`,
+        '--pc-status': statusColor,
+        '--pc-grain': GRAIN,
+        '--pc-photo-position': photoPosition,
+        '--pc-pattern': iconUrl ? `url("${iconUrl}")` : 'linear-gradient(#000, #000)',
+        '--pc-pattern-size': iconUrl ? '180% auto' : '100% 100%',
+        '--pc-holo-gain': iconUrl ? 1.25 : 0.75,
+        '--pc-holo-detail': iconUrl && foil === 'dark' ? 1 : 0
       }}
     >
-      <div ref={tiltRef} className="pc-tilt" data-active="false">
-        <div className="pc-shell">
-          <div className="pc-media">
-            {showImage ? (
-              <img
-                className="pc-portrait"
-                src={image}
-                alt={`${name} — ${role}`}
-                loading="lazy"
-                decoding="async"
-                width="640"
-                height="800"
-                onError={() => setImageFailed(true)}
-              />
-            ) : (
-              <div className="pc-fallback" aria-hidden="true">
-                <span className="pc-monogram">{monogram}</span>
+      <div className="profile-card__body">
+        <div className="profile-card__tile">
+          <span className="profile-card__sheen" />
+          <span className="profile-card__holo">
+            <span className="profile-card__holo-glow" />
+            <span className="profile-card__holo-shift" />
+          </span>
+          {avatarUrl && (
+            <img
+              className="profile-card__photo"
+              src={avatarUrl}
+              alt={name || ''}
+              width="806"
+              height="1080"
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+            />
+          )}
+          {(name || title) && (
+            <>
+              <span className="profile-card__scrim" />
+              <div className="profile-card__info">
+                {name && <h3 className="profile-card__name">{name}</h3>}
+                {title && <p className="profile-card__title">{title}</p>}
               </div>
+            </>
+          )}
+          <span className="profile-card__tile-rim" />
+        </div>
+
+        {showUserInfo && (
+          <div className="profile-card__footer">
+            {miniAvatarUrl && (
+              <span className="profile-card__avatar">
+                <img src={miniAvatarUrl} alt="" loading="lazy" draggable={false} />
+              </span>
             )}
-
-            <span className="pc-glare" aria-hidden="true" />
-            <span className="pc-foil" aria-hidden="true" />
-            {sticker && <span className="pc-sticker">{sticker}</span>}
-          </div>
-
-          <div className="pc-body">
-            {status && <span className="pc-status">{status}</span>}
-            <h3 className="pc-name">{name}</h3>
-            <p className="pc-role">{role}</p>
-            {intro && <p className="pc-intro">{intro}</p>}
-            {handle && <p className="pc-handle">@{handle.replace(/^@/, '')}</p>}
-
-            <div className="pc-foot">
-              <span className="pc-mark">desi draft / no. {number}</span>
-              {contactHref ? (
+            <div className="profile-card__meta">
+              {handle && <span className="profile-card__handle">@{handle}</span>}
+              {status && <span className="profile-card__status">{status}</span>}
+            </div>
+            {contactText &&
+              (contactUrl ? (
                 <a
-                  className="pc-contact"
-                  href={contactHref}
-                  aria-label={contactAriaLabel || `${contactLabel} — ${name}`}
+                  className="profile-card__contact"
+                  href={contactUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={contactLabel}
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                    <rect x="3" y="5" width="18" height="14" rx="3" />
-                    <path d="m4 7 8 6 8-6" />
-                  </svg>
-                  <span>{contactLabel}</span>
+                  <InstagramGlyph />
+                  {contactText}
                 </a>
-              ) : onContact ? (
+              ) : (
                 <button
                   type="button"
-                  className="pc-contact"
-                  onClick={onContact}
-                  aria-label={contactAriaLabel || `${contactLabel} — ${name}`}
+                  className="profile-card__contact"
+                  onClick={onContactClick}
+                  aria-label={contactLabel}
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                    <rect x="3" y="5" width="18" height="14" rx="3" />
-                    <path d="m4 7 8 6 8-6" />
-                  </svg>
-                  <span>{contactLabel}</span>
+                  <InstagramGlyph />
+                  {contactText}
                 </button>
-              ) : null}
-            </div>
+              ))}
           </div>
-        </div>
-      </div>
-    </article>
-  );
-}
+        )}
 
-export default ProfileCard;
+        <span className="profile-card__glare" />
+        <span className="profile-card__shade" />
+        <span className="profile-card__rim" />
+      </div>
+    </div>
+  );
+};
+
+export { ProfileCard };
+export default memo(ProfileCard);

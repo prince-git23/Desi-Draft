@@ -1,0 +1,72 @@
+DESI DRAFT — TEAM PROFILE INFORMATION
+
+TEAM IMAGE SOURCE:
+C:\Users\Prince yadav\OneDrive\Desktop\Desi_Draft1\public\images\team
+
+PUBLIC ASSET DIRECTORY:
+/images/team/
+
+FINAL PUBLIC ASSETS (deployed):
+Ashlee  — /images/team/ashlee.webp   (806 × 1080, WebP, alpha)
+Riddhi  — /images/team/riddhi.webp   (806 × 1080, WebP, alpha)
+Aastha  — /images/team/aastha.webp   (806 × 1080, WebP, alpha)
+Prince  — /images/team/prince.webp   (806 × 1080, WebP, alpha)
+Foil tile — /images/team/holo-pattern.svg
+
+ORIGINAL FILES (kept in this folder, not requested by the site):
+Ashlee.png, Riddhi.png, Aastha.png, Prince_Yadav.png
+
+MEMBER 01
+Name: Ashlee
+Role: Founder / Strategist
+Handle: chilly.potatooo
+Contact: https://www.instagram.com/chilly.potatooo/
+Image: Verified Ashlee portrait — /images/team/ashlee.webp
+Original file: Ashlee.png
+
+MEMBER 02
+Name: Riddhi
+Role: Coordinator / Insight Planner
+Handle: xoxo._.rii_
+Contact: https://www.instagram.com/xoxo._.rii_/
+Image: Verified Riddhi portrait — /images/team/riddhi.webp
+Original file: Riddhi.png
+
+MEMBER 03
+Name: Aastha
+Role: Coordinator / Operations Lead
+Handle: aastha.r07
+Contact: https://www.instagram.com/aastha.r07/
+Image: Verified Aastha portrait — /images/team/aastha.webp
+Original file: Aastha.png
+
+MEMBER 04
+Name: Prince
+Role: Editor / Developer
+Handle: idiotic_.prince
+Contact: https://www.instagram.com/idiotic_.prince/
+Image: Verified Prince portrait — /images/team/prince.webp
+Original file: Prince_Yadav.png
+
+CARD
+Component: src/components/ui/ProfileCard.jsx + ProfileCard.css (React Bits source)
+Data: src/data/team.ts — one record per member
+Status: CORE TEAM · contact opens the member's own Instagram profile
+
+--- ORIGINAL NOTES (as supplied) ---
+
+Ashlee
+Founder/Strategist
+https://www.instagram.com/chilly.potatooo?knvt=MXRhZXNxMHFtd2R0Yg==
+
+Riddhi
+Coordinator/Insight Planner
+https://www.instagram.com/xoxo._.rii_?hvrq=MTE0ZndmdGV2ZGE2ZQ==
+
+Aastha
+Coordinator/Operations Lead
+https://www.instagram.com/aastha.r07?hvrq=MXNidWkyN21pZHB1cg==
+
+Prince
+Editor/Developer
+https://www.instagram.com/idiotic_.prince?lqvp=MTl0ZHdzam5oZGs5ZA==

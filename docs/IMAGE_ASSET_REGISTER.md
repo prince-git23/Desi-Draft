@@ -197,3 +197,21 @@ No new image files were generated in this pass. The following existing assets ch
 | `flora-alchemy/site-home-mobile-390.webp` | mobile application capture inside the Flora card |
 
 Copy correction: the identity set is described as **four typefaces** (previously “four faces”). All generated assets above remain labelled concept work.
+
+## 5. Team portraits — 2026-11-25
+
+Four cut-out portraits supplied by the team, published in the Team section on the
+holographic `ProfileCard`. Originals stay in `public/images/team` as PNG; the site requests
+alpha WebP at the same 806 × 1080. Class: `STUDIO_SUPPLIED_ASSET` (member-supplied, approved
+by the person pictured). No synthetic face, no stock substitute, no generated avatar.
+
+| File | Type | Source | Placement | Class | Approval |
+| --- | --- | --- | --- | --- | --- |
+| `public/images/team/ashlee.webp` | WebP 806×1080, alpha (121 KB) | `Ashlee.png` (studio, 1.14 MB) | Team card 01 — Ashlee, Founder / Strategist | STUDIO_SUPPLIED_ASSET | member portrait |
+| `public/images/team/riddhi.webp` | WebP 806×1080, alpha (113 KB) | `Riddhi.png` (studio, 1.19 MB) | Team card 02 — Riddhi, Coordinator / Insight Planner | STUDIO_SUPPLIED_ASSET | member portrait |
+| `public/images/team/aastha.webp` | WebP 806×1080, alpha (87 KB) | `Aastha.png` (studio, 1.14 MB) | Team card 03 — Aastha, Coordinator / Operations Lead | STUDIO_SUPPLIED_ASSET | member portrait |
+| `public/images/team/prince.webp` | WebP 806×1080, alpha (82 KB) | `Prince_Yadav.png` (studio, 966 KB) | Team card 04 — Prince, Editor / Developer | STUDIO_SUPPLIED_ASSET | member portrait |
+| `public/images/team/holo-pattern.svg` | SVG tile 220×220 | drawn in this repository (sparkle, burst, doodle ring) | Foil mask (`iconUrl`) on all four cards | own work | n/a |
+
+Framing: `object-fit: cover`, per-portrait `object-position` in `src/data/team.ts`; the
+transparency is deliberate so the card's backdrop and foil show around each cut-out.

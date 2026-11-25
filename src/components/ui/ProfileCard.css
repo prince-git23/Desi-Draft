@@ -1,307 +1,415 @@
-/**
- * ProfileCard — Desi Draft surfaces.
- * Tilt/glare/parallax values are written as CSS custom properties by the
- * component's single rAF loop. Nothing here animates while a card is idle.
- */
-.pc {
-  --pc-ink: #0a0a0a;
-  --pc-muted: rgba(10, 10, 10, 0.62);
-  --pc-line: rgba(10, 10, 10, 0.12);
-  --pc-rx: 0deg;
-  --pc-ry: 0deg;
-  --pc-px: 0px;
-  --pc-py: 0px;
-  --pc-gx: 50%;
-  --pc-gy: 50%;
-  height: 100%;
-  perspective: 1100px;
+.profile-card {
+  --pc-light-x: 50%;
+  --pc-light-y: 50%;
+  --pc-pointer-x: 50%;
+  --pc-pointer-y: 50%;
+  --pc-band-x: 50%;
+  --pc-band-y: 50%;
+  --pc-reach: 0;
+  --pc-rotate-x: 0deg;
+  --pc-rotate-y: 0deg;
+  --pc-shift-x: 0px;
+  --pc-shift-y: 0px;
+  --pc-tilt: 0;
+  --pc-active: 0;
+  position: relative;
+  width: 340px;
+  max-width: 100%;
+  perspective: 1000px;
+  /* The footer tightens against the card's own width, not the viewport: four
+     cards across a 1280 laptop are narrower than one card on a phone. */
+  container-type: inline-size;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.pc[data-theme='dark'] {
-  --pc-ink: #eeeae3;
-  --pc-muted: rgba(238, 234, 227, 0.66);
-  --pc-line: rgba(238, 234, 227, 0.16);
-}
-
-.pc-tilt {
-  height: 100%;
-  border-radius: var(--pc-radius);
-  transform: rotateX(var(--pc-rx)) rotateY(var(--pc-ry));
-  transform-style: preserve-3d;
-}
-
-/* Only the card under the pointer gets a compositor hint. */
-.pc-tilt[data-active='true'] {
+.profile-card__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: calc(var(--pc-radius) + 10px);
+  background: var(--pc-frame);
+  box-shadow: var(--pc-frame-shadow);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  transform: rotateX(var(--pc-rotate-x)) rotateY(var(--pc-rotate-y));
   will-change: transform;
 }
 
-.pc-shell {
-  position: relative;
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--pc-line);
-  border-radius: var(--pc-radius);
-  background: var(--pc-surface);
-  color: var(--pc-ink);
-  box-shadow:
-    0 1px 0 rgba(10, 10, 10, 0.08),
-    0 26px 50px -24px rgba(0, 0, 0, 0.55);
-  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
-    box-shadow 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .pc:hover .pc-shell {
-    transform: translateY(-5px);
-    box-shadow:
-      0 1px 0 rgba(10, 10, 10, 0.08),
-      0 34px 60px -22px rgba(0, 0, 0, 0.6);
-  }
-}
-
-.pc-media {
+.profile-card__tile {
   position: relative;
   aspect-ratio: 4 / 5;
-  flex: none;
+  border-radius: var(--pc-radius);
+  background: var(--pc-backdrop);
+  box-shadow: var(--pc-tile-shadow);
   overflow: hidden;
-  background: var(--pc-accent);
   isolation: isolate;
 }
 
-.pc-portrait {
+.profile-card__sheen,
+.profile-card__holo,
+.profile-card__scrim,
+.profile-card__tile-rim,
+.profile-card__glare,
+.profile-card__shade,
+.profile-card__rim {
   position: absolute;
   inset: 0;
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  transform: translate3d(var(--pc-px), var(--pc-py), 0) scale(1.055);
-}
-
-/* No portrait yet: a brand-palette poster, never a broken image. */
-.pc-fallback {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background:
-    radial-gradient(120% 90% at 18% 8%, rgba(255, 255, 255, 0.32) 0%, transparent 58%),
-    linear-gradient(155deg, var(--pc-accent) 0%, var(--pc-accent) 58%, var(--pc-surface) 160%);
-  transform: translate3d(var(--pc-px), var(--pc-py), 0) scale(1.055);
-}
-
-.pc-fallback::before {
-  content: '';
-  position: absolute;
-  inset: auto -22% -38% -22%;
-  height: 76%;
-  border-radius: 50% 50% 0 0;
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.pc-fallback::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.45;
-  mix-blend-mode: multiply;
-  background-image: radial-gradient(rgba(10, 10, 10, 0.32) 0.5px, transparent 0.6px);
-  background-size: 4px 4px;
-}
-
-.pc-monogram {
-  position: absolute;
-  left: 5%;
-  bottom: -0.14em;
-  z-index: 1;
-  font-family: 'Archivo', system-ui, sans-serif;
-  font-weight: 800;
-  font-size: clamp(7rem, 12vw, 11rem);
-  line-height: 0.76;
-  letter-spacing: -0.06em;
-  color: var(--pc-accent-ink);
-  opacity: 0.95;
-  text-transform: uppercase;
-}
-
-.pc-glare,
-.pc-foil {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+  border-radius: inherit;
   pointer-events: none;
-  opacity: 0;
 }
 
-.pc-glare {
+.profile-card__sheen {
   background: radial-gradient(
-    circle at var(--pc-gx) var(--pc-gy),
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(255, 255, 255, 0.22) 32%,
-    transparent 62%
+    farthest-corner circle at calc(var(--pc-light-x) - 10px) calc(var(--pc-light-y) - 10px),
+    var(--pc-sheen) 0%,
+    transparent 55%
   );
-  mix-blend-mode: soft-light;
-  transition: opacity 0.4s ease;
+  opacity: calc(var(--pc-holo) * var(--pc-active));
 }
 
-.pc-foil {
-  background: linear-gradient(
-    118deg,
-    transparent 22%,
-    #4b63e8 34%,
-    #e8b4f5 44%,
-    #e4fba8 54%,
-    #e8603c 64%,
-    transparent 78%
+.profile-card__holo {
+  --pc-spectrum: repeating-linear-gradient(
+    0deg,
+    hsl(2, 100%, 73%) 5%,
+    hsl(53, 100%, 69%) 10%,
+    hsl(93, 100%, 69%) 15%,
+    hsl(176, 100%, 76%) 20%,
+    hsl(228, 100%, 74%) 25%,
+    hsl(260, 100%, 76%) 30%,
+    hsl(2, 100%, 73%) 35%
   );
-  background-size: 190% 190%;
-  background-position: var(--pc-gx) var(--pc-gy);
-  mix-blend-mode: overlay;
-  transition: opacity 0.4s ease;
+  --pc-bars: repeating-linear-gradient(
+    -45deg,
+    #0e152e 0%,
+    hsl(180, 10%, 60%) 3.8%,
+    hsl(180, 29%, 66%) 4.5%,
+    hsl(180, 10%, 60%) 5.2%,
+    #0e152e 10%,
+    #0e152e 12%
+  );
+  --pc-falloff: radial-gradient(
+    farthest-corner circle at var(--pc-pointer-x) var(--pc-pointer-y),
+    hsla(0, 0%, 0%, 0.1) 12%,
+    hsla(0, 0%, 0%, 0.15) 20%,
+    hsla(0, 0%, 0%, 0.25) 120%
+  );
+  background-image: var(--pc-spectrum), var(--pc-bars), var(--pc-falloff);
+  background-position:
+    0 var(--pc-band-y),
+    var(--pc-band-x) var(--pc-band-y),
+    center;
+  background-size:
+    500% 500%,
+    300% 300%,
+    200% 200%;
+  background-blend-mode: color, hard-light;
+  mix-blend-mode: var(--pc-blend);
+  filter: brightness(calc(0.66 + 0.19 * var(--pc-active))) contrast(calc(1.33 + 0.17 * var(--pc-active)))
+    saturate(calc(0.33 + 0.17 * var(--pc-active))) var(--pc-holo-filter);
+  opacity: calc(var(--pc-holo) * var(--pc-holo-gain) * (0.5 + 0.5 * var(--pc-active)));
+  -webkit-mask-image: var(--pc-pattern);
+  -webkit-mask-size: var(--pc-pattern-size);
+  -webkit-mask-position: calc(50% - var(--pc-shift-x) * 1.5) calc(65% - var(--pc-shift-y) * 1.5);
+  -webkit-mask-repeat: repeat;
+  mask-image: var(--pc-pattern);
+  mask-size: var(--pc-pattern-size);
+  mask-position: calc(50% - var(--pc-shift-x) * 1.5) calc(65% - var(--pc-shift-y) * 1.5);
+  mask-repeat: repeat;
 }
 
-.pc-tilt[data-active='true'] .pc-glare {
-  opacity: var(--pc-glare);
-}
-
-.pc-tilt[data-active='true'] .pc-foil {
-  opacity: var(--pc-holo);
-}
-
-.pc-sticker {
+.profile-card__holo-glow,
+.profile-card__holo-shift {
   position: absolute;
-  top: 12px;
-  right: 10px;
-  z-index: 3;
-  pointer-events: none;
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
+  inset: 0;
+  opacity: calc(var(--pc-active) * var(--pc-holo-detail));
 }
 
-.pc-body {
+.profile-card__holo-glow {
+  background-image:
+    linear-gradient(
+      45deg,
+      hsl(176, 100%, 76%),
+      hsl(228, 100%, 74%),
+      hsl(260, 100%, 76%),
+      hsl(2, 100%, 73%),
+      hsl(53, 100%, 69%),
+      hsl(93, 100%, 69%)
+    ),
+    radial-gradient(circle at var(--pc-pointer-x) var(--pc-pointer-y), hsl(0, 0%, 70%) 0%, hsla(0, 0%, 30%, 0.2) 90%),
+    var(--pc-grain);
+  background-size:
+    250% 250%,
+    100% 100%,
+    220px 220px;
+  background-position:
+    var(--pc-pointer-x) var(--pc-pointer-y),
+    center,
+    0 0;
+  background-blend-mode: color-dodge;
+  filter: brightness(calc(2 - var(--pc-reach))) contrast(calc(var(--pc-reach) + 2))
+    saturate(calc(0.5 + var(--pc-reach)));
+  mix-blend-mode: luminosity;
+}
+
+.profile-card__holo-shift {
+  background-image: var(--pc-spectrum), var(--pc-bars), var(--pc-falloff);
+  background-position:
+    0 var(--pc-band-y),
+    calc(var(--pc-band-x) * 0.4) calc(var(--pc-band-y) * 0.5),
+    center;
+  background-size:
+    200% 300%,
+    700% 700%,
+    100% 100%;
+  background-blend-mode: color, hard-light;
+  mix-blend-mode: difference;
+  filter: brightness(0.8) contrast(1.5);
+}
+
+.profile-card__photo {
+  position: absolute;
+  inset: calc(var(--pc-parallax) * -1);
+  width: calc(100% + var(--pc-parallax) * 2);
+  height: calc(100% + var(--pc-parallax) * 2);
+  object-fit: cover;
+  object-position: var(--pc-photo-position, center bottom);
+  transform: translate3d(var(--pc-shift-x), var(--pc-shift-y), 0);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.profile-card__scrim {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.57) 6%,
+    rgba(0, 0, 0, 0.5) 12%,
+    rgba(0, 0, 0, 0.4) 19%,
+    rgba(0, 0, 0, 0.28) 26%,
+    rgba(0, 0, 0, 0.16) 33%,
+    rgba(0, 0, 0, 0.07) 40%,
+    rgba(0, 0, 0, 0.02) 46%,
+    rgba(0, 0, 0, 0) 52%
+  );
+}
+
+.profile-card__info {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 18px;
+  color: #ffffff;
+}
+
+.profile-card__name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.profile-card__title {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.profile-card__tile-rim {
+  box-shadow:
+    inset 0 0 0 1px var(--pc-tile-edge),
+    inset 0 1px 0 var(--pc-tile-highlight);
+}
+
+.profile-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 6px 20px 8px;
+}
+
+.profile-card__avatar {
   position: relative;
-  z-index: 4;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--pc-tile);
+  overflow: hidden;
+}
+
+.profile-card__avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--pc-tile-edge);
+}
+
+.profile-card__avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.profile-card__meta {
   display: flex;
   flex: 1;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 18px 20px 20px;
+  gap: 3px;
+  min-width: 0;
 }
 
-.pc-status {
-  display: inline-block;
-  margin-bottom: 10px;
-  border-radius: 999px;
-  padding: 4px 9px 5px;
-  background: var(--pc-accent);
-  color: var(--pc-accent-ink);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.pc-name {
-  margin: 0;
-  font-family: 'Archivo', system-ui, sans-serif;
-  font-size: clamp(1.6rem, 2vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  text-transform: lowercase;
-}
-
-.pc-role {
-  margin: 7px 0 0;
-  min-height: 1.2em;
-  color: var(--pc-muted);
-  font-size: 13px;
-  line-height: 1.2;
-  text-transform: lowercase;
-}
-
-.pc-intro {
-  margin: 8px 0 0;
-  max-width: 30ch;
-  color: var(--pc-muted);
-  font-size: 12.5px;
-  line-height: 1.45;
-}
-
-.pc-handle {
-  margin: 6px 0 0;
-  color: var(--pc-muted);
-  font-size: 12px;
-}
-
-.pc-foot {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: auto;
-  padding-top: 16px;
-}
-
-.pc-mark {
-  color: var(--pc-muted);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.profile-card__handle {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--pc-ink);
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.pc-contact {
-  display: inline-flex;
-  flex: none;
+.profile-card__status {
+  display: flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid var(--pc-line);
-  border-radius: 999px;
-  min-height: 34px;
-  padding: 7px 12px;
+  overflow: hidden;
+  font-size: 11.5px;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+  color: var(--pc-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.profile-card__status::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pc-status);
+}
+
+.profile-card__contact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border: none;
+  border-radius: calc(var(--pc-radius) * 0.75);
+  background: var(--pc-tile);
+  box-shadow:
+    inset 0 0 0 1px var(--pc-tile-edge),
+    inset 0 1px 0 var(--pc-tile-highlight),
+    var(--pc-tile-shadow);
   color: var(--pc-ink);
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1;
-  text-transform: lowercase;
-  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    filter 0.2s ease,
+    transform 0.2s ease;
 }
 
-.pc-contact:hover {
-  border-color: var(--pc-accent);
-  background: var(--pc-accent);
-  color: var(--pc-accent-ink);
+.profile-card__contact:active {
+  filter: var(--pc-press);
+  transform: scale(0.96);
+  transition-duration: 0s;
 }
 
-.pc-contact:focus-visible {
+.profile-card__contact:focus-visible {
   outline: 2px solid var(--pc-ink);
   outline-offset: 2px;
 }
 
-@media (max-width: 767px) {
-  .pc-foil {
-    display: none;
+.profile-card__glare {
+  background: radial-gradient(
+    farthest-corner circle at var(--pc-light-x) var(--pc-light-y),
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.36) 20%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  mix-blend-mode: overlay;
+  opacity: calc(var(--pc-glare) * var(--pc-active));
+}
+
+.profile-card__shade {
+  background: radial-gradient(
+    farthest-corner circle at var(--pc-light-x) var(--pc-light-y),
+    transparent 30%,
+    var(--pc-shade) 100%
+  );
+  opacity: calc(var(--pc-glare) * var(--pc-tilt));
+}
+
+.profile-card__rim {
+  box-shadow:
+    inset 0 0 0 1px var(--pc-frame-edge),
+    inset 0 1px 0 var(--pc-frame-highlight);
+}
+
+@media (hover: hover) {
+  .profile-card__contact:hover {
+    filter: var(--pc-hover);
   }
-  .pc-monogram {
-    font-size: clamp(6rem, 34vw, 9rem);
-  }
-  .pc-contact {
-    min-height: 40px;
-    padding: 9px 13px;
+
+  .profile-card__contact:hover:active {
+    filter: var(--pc-press);
   }
 }
 
-/* ---- portrait state ------------------------------------------------------
-   A card with a photograph is a portrait card. A card waiting on one is a
-   colour poster with the monogram, so it is flattened: the info band stays the
-   same size and the section stops reading as six empty frames. */
-.pc[data-portrait='false'] .pc-media {
-  aspect-ratio: 16 / 11;
+/* A narrow card — four across a 1280 laptop, or a 320px phone — leaves the
+   footer under 310px: tighten it so the longest handle (@idiotic_.prince) and
+   the Instagram control both hold one line instead of truncating. */
+@container (max-width: 309px) {
+  .profile-card__footer {
+    gap: 10px;
+    padding: 6px 14px 8px;
+  }
+
+  .profile-card__handle {
+    font-size: 13px;
+  }
+
+  .profile-card__status {
+    font-size: 10.5px;
+  }
+
+  .profile-card__contact {
+    gap: 5px;
+    padding: 0 11px;
+    font-size: 12.5px;
+  }
 }
 
-.pc[data-portrait='false'] .pc-monogram {
-  font-size: clamp(4.5rem, 8vw, 7.5rem);
-  bottom: -0.1em;
+/* No tilt, glare transitions or hover press for anyone who asked for stillness;
+   the card keeps its static foil and its readable footer. */
+@media (prefers-reduced-motion: reduce) {
+  .profile-card__body {
+    transform: none;
+  }
+
+  .profile-card__contact {
+    transition: none;
+  }
+
+  .profile-card__contact:active {
+    transform: none;
+  }
 }

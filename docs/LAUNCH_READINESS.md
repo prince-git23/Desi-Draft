@@ -294,3 +294,29 @@ sticker physics are unchanged.
 The FAQ-style copy audits (`COPY_AND_MESSAGING_AUDIT.md`, `FINAL_COPY_AUDIT.md`)
 still describe the six-person wording as a decision; both predate this pass and
 are superseded by §10.1 above.
+
+## 11. Team section — four holographic profile cards (2026-11-25)
+
+The public Team section is now exactly four cards, one per confirmed member, rendered from
+`src/data/team.ts`. This supersedes the three-person layout in §10.1 and the six-person
+wording in the earlier copy audits.
+
+| Member | Role | Handle | Contact |
+| --- | --- | --- | --- |
+| Ashlee | Founder / Strategist | `chilly.potatooo` | https://www.instagram.com/chilly.potatooo/ |
+| Riddhi | Coordinator / Insight Planner | `xoxo._.rii_` | https://www.instagram.com/xoxo._.rii_/ |
+| Aastha | Coordinator / Operations Lead | `aastha.r07` | https://www.instagram.com/aastha.r07/ |
+| Prince | Editor / Developer | `idiotic_.prince` | https://www.instagram.com/idiotic_.prince/ |
+
+- Card: React Bits `ProfileCard` (JS + CSS) at `src/components/ui/ProfileCard.jsx` /
+  `.css`, one shared component for all four records. Foil pattern is the studio's own
+  `public/images/team/holo-pattern.svg`. Settings: `holo 0.85`, `glare 0.55`,
+  `tiltStrength 8`, `parallax 6`, `radius 16`, `theme dark`, `intro`, `enableMobileTilt false`.
+- Contact: a real anchor to that member's profile, `target="_blank"` with
+  `rel="noopener noreferrer"`, labelled `View <name> on Instagram`; the button carries the
+  Instagram glyph (inline SVG, no extra dependency).
+- Not installed: `@hugeicons/react` and `@hugeicons/core-free-icons`. The supplied card used
+  them for a Mail glyph that this brief replaces, so shipping the packages would have added
+  weight for an icon the card no longer shows.
+- Still open: nothing about the section is unverified in a browser; no deployed origin has
+  been pointed at this build, so production rendering is untested.

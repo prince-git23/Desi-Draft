@@ -1,25 +1,25 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from '../lib/smooth';
 import { usePrefersReducedMotion } from '../lib/hooks';
-import { media } from '../data/media';
 import { team } from '../data/team';
 import { ProfileCard } from './ui/ProfileCard';
-import { openContact } from './ContactDialog';
 import { Chapter } from './ui/Chapter';
-import { Sticker } from './art/Stickers';
 
 const COUNT_WORD = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
 
+/** The studio's own foil tile: sparkle, burst and doodle marks (see the SVG). */
+const TEAM_PATTERN = '/images/team/holo-pattern.svg';
+
 /**
- * Normal-height, content-driven team section: one ProfileCard per active member
- * (the studio is three people) on a 3/2/1 column grid. The count and the roles
- * come from `data/team`, so nothing has to be rewritten when a member changes.
+ * The people. One holographic ProfileCard per record in `data/team`, on a
+ * 4 / 2 / 1 column grid: four across on a laptop, two on a tablet, one on a
+ * phone so the portrait and the footer stay legible. The count in the heading
+ * and the roles line both come from the data — nothing is hard-coded.
  */
 export function Team() {
   const gridRef = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
   const count = COUNT_WORD[team.length] ?? String(team.length);
-  const roles = team.map((member) => member.role);
 
   useEffect(() => {
     const grid = gridRef.current;
@@ -54,70 +54,46 @@ export function Team() {
           <h2 className="display text-[clamp(2.5rem,4.5vw,4.5rem)] leading-[1.02]">
             {count} people, <span className="serif-i">one studio.</span>
           </h2>
-          <p className="mt-5 text-[12px] uppercase tracking-[0.18em] text-cream/70">
-            {roles.join(' · ')}
+          <p className="mx-auto mt-5 max-w-[62ch] text-[10.5px] uppercase leading-[1.9] tracking-[0.14em] text-cream/70">
+            {team.map((member) => member.title).join(' · ')}
           </p>
         </div>
 
         <div
           ref={gridRef}
-          className="mt-[6vh] grid grid-cols-1 gap-5 sm:grid-cols-2 md:mt-[8vh] md:gap-6 lg:grid-cols-3"
+          className="mt-[6vh] grid grid-cols-1 justify-items-center gap-[clamp(1.5rem,2.4vw,1.75rem)] sm:grid-cols-2 md:mt-[8vh] xl:grid-cols-4"
         >
-          {team.map((member, index) => {
-            const lastAlone = team.length % 2 === 1 && index === team.length - 1;
-            return (
-              <div
-                key={member.id}
-                data-team-card
-                className={`h-full ${
-                  lastAlone
-                    ? 'sm:col-span-2 sm:mx-auto sm:w-[calc(50%-0.625rem)] lg:col-span-1 lg:mx-0 lg:w-full'
-                    : ''
-                }`}
-              >
-                <ProfileCard
-                  index={index}
-                  name={member.name}
-                  role={member.role}
-                  status={member.status}
-                  image={member.photo ?? media.teamPhotos[member.id] ?? media.teamPhotos[member.name] ?? ''}
-                  intro={member.intro}
-                  accent={member.band}
-                  accentInk={member.bandInk}
-                  surface={member.card}
-                  theme="light"
-                  radius={22}
-                  enableTilt
-                  tiltStrength={5}
-                  parallax={3}
-                  holo={0.35}
-                  glare={0.25}
-                  enableMobileTilt={false}
-                  onContact={() =>
-                    openContact({
-                      title: `hello ${member.name}`,
-                      subject: `hello ${member.name} — desi draft`,
-                    })
-                  }
-                  contactLabel="say hi"
-                  contactAriaLabel={`Contact desi draft about ${member.name}`}
-                  sticker={
-                    <Sticker
-                      kind={member.sticker}
-                      size={56}
-                      rotate={member.stickerSide === 'left' ? -8 : 8}
-                    />
-                  }
-                />
-              </div>
-            );
-          })}
+          {team.map((member) => (
+            <div key={member.id} data-team-card className="w-full max-w-[340px]">
+              <ProfileCard
+                name={member.name}
+                title={member.title}
+                handle={member.handle}
+                status={member.status}
+                statusColor={member.statusColor}
+                contactText="Instagram"
+                contactUrl={member.instagram}
+                contactAriaLabel={`View ${member.name} on Instagram`}
+                avatarUrl={member.avatarUrl}
+                photoPosition={member.photoPosition}
+                iconUrl={TEAM_PATTERN}
+                holo={0.85}
+                glare={0.55}
+                tiltStrength={8}
+                parallax={6}
+                radius={16}
+                enableTilt
+                intro
+                showUserInfo
+                enableMobileTilt={false}
+                theme="dark"
+              />
+            </div>
+          ))}
         </div>
 
-        <p className="mt-8 text-center text-[11px] uppercase tracking-[0.18em] text-cream/70">
-          {team.every((member) => member.photo)
-            ? 'the people behind the work'
-            : 'portraits in progress · roles shown as credited'}
+        <p className="mt-10 text-center text-[11px] uppercase tracking-[0.18em] text-cream/70">
+          the people behind the work
         </p>
       </div>
     </section>

@@ -1,0 +1,113 @@
+{
+  "320": {
+    "cols": 1,
+    "overflowX": 0,
+    "cardWidth": 288,
+    "cardHeight": 415,
+    "errors": 0,
+    "shots": [
+      "team-320.png"
+    ]
+  },
+  "360": {
+    "cols": 1,
+    "overflowX": 0,
+    "cardWidth": 328,
+    "cardHeight": 465,
+    "errors": 0,
+    "shots": []
+  },
+  "390": {
+    "cols": 1,
+    "overflowX": 0,
+    "cardWidth": 340,
+    "cardHeight": 480,
+    "errors": 0,
+    "shots": [
+      "team-390.png",
+      "team-390-hover.png"
+    ]
+  },
+  "430": {
+    "cols": 1,
+    "overflowX": 0,
+    "cardWidth": 340,
+    "cardHeight": 480,
+    "errors": 0,
+    "shots": []
+  },
+  "768": {
+    "cols": 2,
+    "overflowX": 0,
+    "cardWidth": 340,
+    "cardHeight": 480,
+    "errors": 0,
+    "shots": [
+      "team-768.png"
+    ]
+  },
+  "820": {
+    "cols": 2,
+    "overflowX": 0,
+    "cardWidth": 340,
+    "cardHeight": 480,
+    "errors": 0,
+    "shots": []
+  },
+  "1024": {
+    "cols": 2,
+    "overflowX": 0,
+    "cardWidth": 340,
+    "cardHeight": 480,
+    "errors": 0,
+    "shots": []
+  },
+  "1280": {
+    "cols": 4,
+    "overflowX": 0,
+    "cardWidth": 280,
+    "cardHeight": 405,
+    "errors": 0,
+    "shots": []
+  },
+  "1366": {
+    "cols": 4,
+    "overflowX": 0,
+    "cardWidth": 300,
+    "cardHeight": 430,
+    "errors": 0,
+    "shots": []
+  },
+  "1440": {
+    "cols": 4,
+    "overflowX": 0,
+    "cardWidth": 317,
+    "cardHeight": 452,
+    "errors": 0,
+    "shots": [
+      "team-1440.png",
+      "team-1440-hover.png"
+    ]
+  },
+  "1920": {
+    "cols": 4,
+    "overflowX": 0,
+    "cardWidth": 340,
+    "cardHeight": 480,
+    "errors": 0,
+    "shots": []
+  },
+  "settle-1440": {
+    "rx": "0.000deg",
+    "active": "0.0046"
+  },
+  "settle-390": {
+    "rx": "0.000deg",
+    "active": "0.0046"
+  },
+  "reduced": {
+    "transform": "none",
+    "visible": true,
+    "btnInside": true
+  }
+}
